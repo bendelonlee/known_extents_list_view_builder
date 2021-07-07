@@ -106,20 +106,8 @@ class _ExampleListState extends State<ExampleList> {
   }
 
   List<double> get _itemExtents {
-    final _list = List.generate(10000, (index) => index)
-    double lastItemHeight = 0.0;
-    List<double> _result = [];
-    _list.forEach((index){
-      if(_result.isNotEmpty){
-        lastItemHeight = _result.last;
-      }
-      if(index % 5 == 0){
-        _result.add(_itemHeight + _headerHeight + lastItemHeight);
-      } else {
-        _result.add(_itemHeight + lastItemHeight);
-      }
-    });
-    return _result;
+    return List.generate(10000,
+        (index) => index % 5 == 0 ? _itemHeight + _headerHeight : _itemHeight);
   }
 
   @override
