@@ -268,7 +268,11 @@ abstract class RenderSliverFixedExtentBoxAdaptor
         indexToLayoutOffset(itemHeights, firstIndex);
     final double trailingScrollOffset =
         indexToLayoutOffset(itemHeights, lastIndex + 1);
-
+    if (!(firstIndex == 0 ||
+        childScrollOffset(firstChild!)! - scrollOffset <=
+            precisionErrorTolerance)) {
+      print("firstIndex: $firstIndex, ${childScrollOffset(firstChild!)}");
+    }
     assert(firstIndex == 0 ||
         childScrollOffset(firstChild!)! - scrollOffset <=
             precisionErrorTolerance);
