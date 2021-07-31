@@ -7,6 +7,7 @@ import 'dart:math';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
+import 'package:known_extents_list_view_builder/sliver_known_extents_list.dart';
 import 'package:logger/logger.dart';
 
 final logger = Logger();
@@ -40,13 +41,14 @@ class SliverKnownExtentsReorderableList extends StatefulWidget {
   /// The [itemCount] must be greater than or equal to zero.
   const SliverKnownExtentsReorderableList({
     Key? key,
-    itemExtents,
+    required this.itemExtents,
     required this.itemBuilder,
     required this.itemCount,
     required this.onReorder,
     this.proxyDecorator,
   })  : assert(itemCount >= 0),
         super(key: key);
+  final List<double> itemExtents;
 
   /// {@macro flutter.widgets.reorderable_list.itemBuilder}
   final IndexedWidgetBuilder itemBuilder;
@@ -508,7 +510,8 @@ class SliverKnownExtentsReorderableListState
   @override
   Widget build(BuildContext context) {
     assert(debugCheckHasOverlay(context));
-    return SliverList(
+    return SliverKnownExtentsList(
+      itemExtents: widget.itemExtents,
       // When dragging, the dragged item is still in the list but has been replaced
       // by a zero height SizedBox, so that the gap can move around. To make the
       // list extent stable we add a dummy entry to the end.
