@@ -1,12 +1,12 @@
-// Copyright 2014 The Flutter Authors. All rights reserved.
+// Bandaid package
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:known_extents_list_view_builder/binary_search.dart';
+import 'package:logger/logger.dart';
 
 /// A sliver that contains multiple box children that have the same extent in
 /// the main axis.
@@ -32,13 +32,13 @@ import 'package:known_extents_list_view_builder/binary_search.dart';
 ///    [SliverConstraints.remainingPaintExtent].
 ///  * [RenderSliverList], which does not require its children to have the same
 ///    extent in the main axis.
-abstract class RenderSliverFixedExtentBoxAdaptor
+abstract class RenderSliverKnownExtentsBoxAdaptor
     extends RenderSliverMultiBoxAdaptor {
   /// Creates a sliver that contains multiple box children that have the same
   /// extent in the main axis.
   ///
   /// The [childManager] argument must not be null.
-  RenderSliverFixedExtentBoxAdaptor({
+  RenderSliverKnownExtentsBoxAdaptor({
     required RenderSliverBoxChildManager childManager,
   }) : super(childManager: childManager);
 
@@ -54,8 +54,12 @@ abstract class RenderSliverFixedExtentBoxAdaptor
   /// By default, places the children in order, without gaps, starting from
   /// layout offset zero.
   @protected
-  double indexToLayoutOffset(List<double> itemHeights, int index) =>
-      itemHeights[index];
+  double indexToLayoutOffset(List<double> itemHeights, int index) {
+    // logger.d('Index: $index, Offset: ${itemHeights[index]}');
+    return itemHeights[index];
+  }
+
+  final logger = Logger(); //TODO: remove when finished
 
   /// The minimum child index that is visible at the given scroll offset.
   ///
@@ -80,8 +84,12 @@ abstract class RenderSliverFixedExtentBoxAdaptor
   @protected
   int getMaxChildIndexForScrollOffset(
       double scrollOffset, List<double> itemHeights) {
-    return binarySearchReturnLowest(itemHeights, scrollOffset)
+    final _result = binarySearchReturnLowest(itemHeights, scrollOffset, matchReturnsMin: true)
         .clamp(0, itemHeights.length - 1);
+
+    logger.d(
+        'getMaxChildIndexForScrollOffset scrollOffset: $scrollOffset, index: $_result');
+    return _result;
   }
 
   /// Called to estimate the total scrollable extents of this object.
@@ -129,6 +137,7 @@ abstract class RenderSliverFixedExtentBoxAdaptor
   ///    values.
   @protected
   double computeMaxScrollOffset(List<double> itemHeights) {
+    logger.d('computeMaxScrollOffset: ${itemHeights.last}');
     return itemHeights.last;
   }
 
@@ -173,9 +182,10 @@ abstract class RenderSliverFixedExtentBoxAdaptor
         );
 
     final int firstIndex =
-        getMinChildIndexForScrollOffset(scrollOffset, itemExtents);
+        getMinChildIndexForScrollOffset(scrollOffset, itemHeights);
+
     final int? targetLastIndex = targetEndScrollOffset.isFinite
-        ? getMaxChildIndexForScrollOffset(targetEndScrollOffset, itemExtents)
+        ? getMaxChildIndexForScrollOffset(targetEndScrollOffset, itemHeights)
         : null;
 
     if (firstChild != null) {
@@ -232,6 +242,7 @@ abstract class RenderSliverFixedExtentBoxAdaptor
       firstChild!.layout(childConstraints(indexOf(firstChild!)));
       final SliverMultiBoxAdaptorParentData childParentData =
           firstChild!.parentData! as SliverMultiBoxAdaptorParentData;
+
       childParentData.layoutOffset =
           indexToLayoutOffset(itemHeights, firstIndex);
       trailingChildWithLayout = firstChild;
@@ -241,6 +252,8 @@ abstract class RenderSliverFixedExtentBoxAdaptor
     for (int index = indexOf(trailingChildWithLayout!) + 1;
         targetLastIndex == null || index <= targetLastIndex;
         ++index) {
+      print('index: $index');
+
       RenderBox? child = childAfter(trailingChildWithLayout!);
       if (child == null || indexOf(child) != index) {
         int _index = child == null ? 0 : indexOf(child);
@@ -264,6 +277,7 @@ abstract class RenderSliverFixedExtentBoxAdaptor
     }
 
     final int lastIndex = indexOf(lastChild!);
+    print('lastIndex: $lastIndex');
     final double leadingScrollOffset =
         indexToLayoutOffset(itemHeights, firstIndex);
     final double trailingScrollOffset =
@@ -273,9 +287,9 @@ abstract class RenderSliverFixedExtentBoxAdaptor
             precisionErrorTolerance)) {
       print("firstIndex: $firstIndex, ${childScrollOffset(firstChild!)}");
     }
-    assert(firstIndex == 0 ||
-        childScrollOffset(firstChild!)! - scrollOffset <=
-            precisionErrorTolerance);
+    // assert(firstIndex == 0 ||
+    //     childScrollOffset(firstChild!)! - scrollOffset <=
+    //         precisionErrorTolerance);
     assert(debugAssertChildListIsNonEmptyAndContiguous());
     assert(indexOf(firstChild!) == firstIndex);
     assert(targetLastIndex == null || lastIndex <= targetLastIndex);
@@ -351,7 +365,7 @@ abstract class RenderSliverFixedExtentBoxAdaptor
 ///
 ///
 
-class RenderSliverKnownExtentsList extends RenderSliverFixedExtentBoxAdaptor {
+class RenderSliverKnownExtentsList extends RenderSliverKnownExtentsBoxAdaptor {
   /// Creates a sliver that contains multiple box children that have a given
   /// extent in the main axis.
   ///
@@ -376,10 +390,12 @@ class RenderSliverKnownExtentsList extends RenderSliverFixedExtentBoxAdaptor {
 
 List<double> _makeHeights(List<double> _extents) {
   double total = 0;
-  return _extents.map((double extent) {
+  final _list = _extents.map((double extent) {
     total += extent;
     return total;
   }).toList();
+
+  return [0, ..._list];
 }
 
 bool _isWithinPrecisionErrorTolerance(double actual, int round) {
