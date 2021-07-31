@@ -84,7 +84,8 @@ abstract class RenderSliverKnownExtentsBoxAdaptor
   @protected
   int getMaxChildIndexForScrollOffset(
       double scrollOffset, List<double> itemHeights) {
-    final _result = binarySearchReturnLowest(itemHeights, scrollOffset, matchReturnsMin: true)
+    final _result = binarySearchReturnLowest(itemHeights, scrollOffset,
+            matchReturnsMin: true)
         .clamp(0, itemHeights.length - 1);
 
     logger.d(
@@ -104,6 +105,7 @@ abstract class RenderSliverKnownExtentsBoxAdaptor
   ///
   ///  * [computeMaxScrollOffset], which is similar but must provide a precise
   ///    value.
+  //TODO: There's really no point in having this method when the max is easily known
   @protected
   double estimateMaxScrollOffset({
     required int firstIndex,
@@ -112,7 +114,7 @@ abstract class RenderSliverKnownExtentsBoxAdaptor
     double leadingScrollOffset = 0,
     double trailingScrollOffset = 0,
   }) {
-    return itemHeights[lastIndex] - itemHeights[firstIndex];
+    return computeMaxScrollOffset(itemHeights);
   }
 
   /// Called to obtain a precise measure of the total scrollable extents of this
