@@ -8,7 +8,7 @@
             "name": "known_extents_list_view_builder",
             "request": "launch",
             "type": "dart",
-            "program": "${workspaceRoot}/example/lib/main.dart"
+            "program": "${workspaceRoot}/example/lib/reorderable_list_view.dart"
         },
         {
             "name": "known_extents_list_view_builder (profile mode)",

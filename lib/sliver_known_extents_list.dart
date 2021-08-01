@@ -21,8 +21,8 @@ class SliverKnownExtentsList extends SliverMultiBoxAdaptorWidget {
   }
 
   @override
-  void updateRenderObject(BuildContext context, RenderSliverFixedExtentList renderObject) {
+  void updateRenderObject(BuildContext context, dynamic renderObject) {
     
-    renderObject.itemExtent = itemExtents[0];
+    renderObject.itemExtents = itemExtents;
   }
 }

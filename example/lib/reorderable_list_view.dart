@@ -95,17 +95,21 @@ class _ExampleListState extends State<ExampleList> {
   final double _headerHeight = 21.0;
   Widget _itemBuilder(_, index) {
     if (index % 5 == 0) {
-      return Column(
+      return DecoratedBox(
         key: ValueKey(items[index]),
-        children: [
-        Container(
-            child: Text('header'),
-            color: Colors.blueGrey,
-            height: _headerHeight),
-        Container(child: Text(items[index]), height: _itemHeight)
-      ]);
+        decoration: BoxDecoration(border: Border.all()),
+        child: Column(
+          children: [
+          Container(
+              child: Text('header'),
+              color: Colors.blueGrey,
+              height: _headerHeight),
+          Container(child: Text(items[index]), height: _itemHeight)
+        ]),
+      );
     }
     return Container(
+      decoration: BoxDecoration(border: Border.all()),
       key: ValueKey(items[index]),
       child: Text(items[index]), height: _itemHeight);
   }
@@ -123,19 +127,16 @@ class _ExampleListState extends State<ExampleList> {
 
   @override
   Widget build(BuildContext context) {
-    double scrollerWidth = 20;
     return Stack(
       children: <Widget>[
-        Padding(
-            padding: EdgeInsets.only(right: scrollerWidth),
-            child: KnownExtentsReorderableListView.builder(
-              onReorder: (int start, int end){},
-              itemExtents: _itemExtents,
-              physics: AlwaysScrollableScrollPhysics(),
-              itemCount: items.length,
-              scrollController: scrollController,
-              itemBuilder: _itemBuilder,
-            ))
+        KnownExtentsReorderableListView.builder(
+          onReorder: (int start, int end){},
+          itemExtents: _itemExtents,
+          physics: AlwaysScrollableScrollPhysics(),
+          itemCount: items.length,
+          scrollController: scrollController,
+          itemBuilder: _itemBuilder,
+        )
       ],
     );
   }

@@ -1,4 +1,4 @@
-// Copyright 2014 The Flutter Authors. All rights reserved.
+// Bandaid package.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -10,7 +10,17 @@ import 'package:flutter/widgets.dart';
 import 'package:known_extents_list_view_builder/sliver_known_extents_list.dart';
 import 'package:logger/logger.dart';
 
-final logger = Logger();
+final logger = Logger(filter: MyFilter());
+
+class MyFilter extends LogFilter {
+  @override
+  bool shouldLog(LogEvent event) {
+    if (event.level == Level.debug) {
+      return false;
+    }
+    return true;
+  }
+}
 
 /// A sliver list that allows the user to interactively reorder the list items.
 ///
@@ -157,12 +167,19 @@ class SliverKnownExtentsReorderableListState
   Offset? _finalDropPosition;
   MultiDragGestureRecognizer<MultiDragPointerState>? _recognizer;
   bool _autoScrolling = false;
+  late List<double> _itemExtents;
 
   late ScrollableState _scrollable;
   Axis get _scrollDirection => axisDirectionToAxis(_scrollable.axisDirection);
   bool get _reverse =>
       _scrollable.axisDirection == AxisDirection.up ||
       _scrollable.axisDirection == AxisDirection.left;
+
+  @override
+  void initState() {
+    _itemExtents = widget.itemExtents;
+    super.initState();
+  }
 
   @override
   void didChangeDependencies() {
@@ -270,9 +287,12 @@ class SliverKnownExtentsReorderableListState
     assert(_overlayEntry == null);
     _overlayEntry = OverlayEntry(builder: _dragInfo!.createProxy);
     overlay.insert(_overlayEntry!);
-
+    setState(() {
+      _itemExtents[item.index] = 0.0;
+    });
     for (final _ReorderableItemState childItem in _items.values) {
       if (childItem == item || !childItem.mounted) continue;
+      // if (item.index == _insertIndex) continue;
       childItem.updateForGap(
           _insertIndex!, _dragInfo!.itemExtent, false, _reverse);
     }
@@ -358,6 +378,7 @@ class SliverKnownExtentsReorderableListState
 
     // Find the new index for inserting the item being dragged.
     int newIndex = _insertIndex!;
+
     for (final _ReorderableItemState item in _items.values) {
       if (item.index == _dragIndex! || !item.mounted) continue;
 
@@ -412,7 +433,10 @@ class SliverKnownExtentsReorderableListState
     if (newIndex != _insertIndex) {
       _insertIndex = newIndex;
       for (final _ReorderableItemState item in _items.values) {
-        if (item.index == _dragIndex! || !item.mounted) continue;
+        // newIndex = 1;
+        logger.d(
+            'continuing: ${item.index == _dragIndex || !item.mounted} \nitem.index:${item.index},_dragIndex:$_dragIndex\nnewIndex:$newIndex');
+        if (!item.mounted) continue;
         item.updateForGap(newIndex, gapExtent, true, _reverse);
       }
     }
@@ -509,9 +533,10 @@ class SliverKnownExtentsReorderableListState
 
   @override
   Widget build(BuildContext context) {
+    print('this ran ${_itemExtents[1]}');
     assert(debugCheckHasOverlay(context));
     return SliverKnownExtentsList(
-      itemExtents: widget.itemExtents,
+      itemExtents: _itemExtents,
       // When dragging, the dragged item is still in the list but has been replaced
       // by a zero height SizedBox, so that the gap can move around. To make the
       // list extent stable we add a dummy entry to the end.
@@ -644,6 +669,7 @@ class _ReorderableItemState extends State<_ReorderableItem> {
         }
         _startOffset = _targetOffset;
       }
+      logger.d('index: $index _startOffset: $_startOffset, $_targetOffset');
       rebuild();
     }
   }
@@ -662,6 +688,8 @@ class _ReorderableItemState extends State<_ReorderableItem> {
     final RenderBox itemRenderBox = context.findRenderObject()! as RenderBox;
     final Offset itemPosition =
         itemRenderBox.localToGlobal(Offset.zero) + _targetOffset;
+    logger.d(
+        'index: $index, itemRenderBox.size: ${itemRenderBox.size} itemPostion: $itemPosition');
     return itemPosition & itemRenderBox.size;
   }
 
@@ -729,6 +757,7 @@ class ReorderableDragStartListener extends StatelessWidget {
   void _startDragging(BuildContext context, PointerDownEvent event) {
     final SliverKnownExtentsReorderableListState? list =
         SliverKnownExtentsReorderableList.maybeOf(context);
+
     list?.startItemDragReorder(
       index: index,
       event: event,
