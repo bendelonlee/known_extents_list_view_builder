@@ -10,7 +10,7 @@ import 'package:flutter/widgets.dart';
 import 'package:known_extents_list_view_builder/sliver_known_extents_list.dart';
 import 'package:logger/logger.dart';
 
-final logger = Logger(filter: MyFilter());
+final logger = Logger(filter: null);
 
 class MyFilter extends LogFilter {
   @override
@@ -167,19 +167,12 @@ class SliverKnownExtentsReorderableListState
   Offset? _finalDropPosition;
   MultiDragGestureRecognizer<MultiDragPointerState>? _recognizer;
   bool _autoScrolling = false;
-  late List<double> _itemExtents;
 
   late ScrollableState _scrollable;
   Axis get _scrollDirection => axisDirectionToAxis(_scrollable.axisDirection);
   bool get _reverse =>
       _scrollable.axisDirection == AxisDirection.up ||
       _scrollable.axisDirection == AxisDirection.left;
-
-  @override
-  void initState() {
-    _itemExtents = widget.itemExtents;
-    super.initState();
-  }
 
   @override
   void didChangeDependencies() {
@@ -287,14 +280,12 @@ class SliverKnownExtentsReorderableListState
     assert(_overlayEntry == null);
     _overlayEntry = OverlayEntry(builder: _dragInfo!.createProxy);
     overlay.insert(_overlayEntry!);
-    setState(() {
-      _itemExtents[item.index] = 0.0;
-    });
     for (final _ReorderableItemState childItem in _items.values) {
       if (childItem == item || !childItem.mounted) continue;
       // if (item.index == _insertIndex) continue;
-      childItem.updateForGap(
-          _insertIndex!, _dragInfo!.itemExtent, false, _reverse);
+      // childItem.updateForGap(
+      //     _insertIndex!, _dragInfo!.itemExtent, false, _reverse);
+      // no longer need because the gap is intrinsicly already in place.
     }
     return _dragInfo;
   }
@@ -429,15 +420,15 @@ class SliverKnownExtentsReorderableListState
         }
       }
     }
-
     if (newIndex != _insertIndex) {
+      print("new check ======== ");
       _insertIndex = newIndex;
       for (final _ReorderableItemState item in _items.values) {
         // newIndex = 1;
-        logger.d(
-            'continuing: ${item.index == _dragIndex || !item.mounted} \nitem.index:${item.index},_dragIndex:$_dragIndex\nnewIndex:$newIndex');
-        if (!item.mounted) continue;
-        item.updateForGap(newIndex, gapExtent, true, _reverse);
+        // logger.d(
+        //     'continuing: ${item.index == _dragIndex || !item.mounted} \nitem.index:${item.index},_dragIndex:$_dragIndex\nnewIndex:$newIndex');
+        if (item.index == _dragIndex || !item.mounted) continue;
+        item.updateForGap(newIndex - 1, gapExtent, true, _reverse, _dragIndex!);
       }
     }
   }
@@ -533,10 +524,9 @@ class SliverKnownExtentsReorderableListState
 
   @override
   Widget build(BuildContext context) {
-    print('this ran ${_itemExtents[1]}');
     assert(debugCheckHasOverlay(context));
     return SliverKnownExtentsList(
-      itemExtents: _itemExtents,
+      itemExtents: widget.itemExtents,
       // When dragging, the dragged item is still in the list but has been replaced
       // by a zero height SizedBox, so that the gap can move around. To make the
       // list extent stable we add a dummy entry to the end.
@@ -636,11 +626,13 @@ class _ReorderableItemState extends State<_ReorderableItem> {
   }
 
   void updateForGap(
-      int gapIndex, double gapExtent, bool animate, bool reverse) {
-    final Offset newTargetOffset = (gapIndex <= index)
+      int gapIndex, double gapExtent, bool animate, bool reverse, int dragIndex) {
+    final Offset newTargetOffset = (index > dragIndex && gapIndex >= index)
         ? _extentOffset(
-            reverse ? -gapExtent : gapExtent, _listState._scrollDirection)
+            reverse ? -gapExtent : -gapExtent, _listState._scrollDirection)
         : Offset.zero;
+    animate = false;
+
     if (newTargetOffset != _targetOffset) {
       _targetOffset = newTargetOffset;
       if (animate) {
@@ -669,9 +661,10 @@ class _ReorderableItemState extends State<_ReorderableItem> {
         }
         _startOffset = _targetOffset;
       }
-      logger.d('index: $index _startOffset: $_startOffset, $_targetOffset');
       rebuild();
     }
+    logger.d(
+        'index: $index gapIndex: $gapIndex, start and target: $_startOffset, $_targetOffset');
   }
 
   void resetGap() {
@@ -688,8 +681,8 @@ class _ReorderableItemState extends State<_ReorderableItem> {
     final RenderBox itemRenderBox = context.findRenderObject()! as RenderBox;
     final Offset itemPosition =
         itemRenderBox.localToGlobal(Offset.zero) + _targetOffset;
-    logger.d(
-        'index: $index, itemRenderBox.size: ${itemRenderBox.size} itemPostion: $itemPosition');
+    // logger.d(
+    //     'index: $index, itemRenderBox.size: ${itemRenderBox.size} itemPostion: $itemPosition');
     return itemPosition & itemRenderBox.size;
   }
 
