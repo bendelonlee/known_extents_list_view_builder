@@ -625,12 +625,20 @@ class _ReorderableItemState extends State<_ReorderableItem> {
     return _targetOffset;
   }
 
-  void updateForGap(
-      int gapIndex, double gapExtent, bool animate, bool reverse, int dragIndex) {
-    final Offset newTargetOffset = (index > dragIndex && gapIndex >= index)
-        ? _extentOffset(
-            reverse ? -gapExtent : -gapExtent, _listState._scrollDirection)
-        : Offset.zero;
+  double _offsetMultiplier(int gapIndex, bool reverse, int dragIndex) {
+    if (index > dragIndex && gapIndex >= index) {
+      return -1;
+    } else {
+      return 0;
+    }
+  }
+
+  void updateForGap(int gapIndex, double gapExtent, bool animate, bool reverse,
+      int dragIndex) {
+    final Offset newTargetOffset = _extentOffset(
+        _offsetMultiplier(gapIndex, reverse, dragIndex) * gapExtent,
+        _listState._scrollDirection);
+
     animate = false;
 
     if (newTargetOffset != _targetOffset) {
