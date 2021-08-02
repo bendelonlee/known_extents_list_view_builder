@@ -241,6 +241,8 @@ abstract class RenderSliverKnownExtentsBoxAdaptor
     }
 
     if (trailingChildWithLayout == null) {
+      logger.d(
+          'trailingChildWithLayout was null:${'trailingChildWithLayout was null'}');
       firstChild!.layout(childConstraints(indexOf(firstChild!)));
       final SliverMultiBoxAdaptorParentData childParentData =
           firstChild!.parentData! as SliverMultiBoxAdaptorParentData;
@@ -258,7 +260,7 @@ abstract class RenderSliverKnownExtentsBoxAdaptor
 
       RenderBox? child = childAfter(trailingChildWithLayout!);
       if (child == null || indexOf(child) != index) {
-        int _index = child == null ? 0 : indexOf(child);
+        int _index = child == null ? index : indexOf(child);
         child = insertAndLayoutChild(childConstraints(_index),
             after: trailingChildWithLayout);
         if (child == null) {
