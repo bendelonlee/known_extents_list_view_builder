@@ -307,6 +307,10 @@ class SliverKnownExtentsReorderableListState
       if (_insertIndex! < widget.itemCount - 1) {
         // Find the location of the item we want to insert before
         _finalDropPosition = _itemOffsetAt(_insertIndex!);
+        if (_insertIndex! > item.index) {
+          _finalDropPosition = _finalDropPosition!.translate(
+              0.0, -item.itemExtent); //TODO: Make work for horizontal
+        }
       } else {
         // Inserting into the last spot on the list. If it's the only spot, put
         // it back where it was. Otherwise, grab the second to last and move
@@ -321,6 +325,7 @@ class SliverKnownExtentsReorderableListState
               _extentOffset(item.itemExtent, _scrollDirection);
         }
       }
+      logger.d('_finalDropPosition:${_finalDropPosition}');
     });
   }
 
