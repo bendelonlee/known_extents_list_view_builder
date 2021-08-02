@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 
-import 'package:known_extents_list_view_builder/known_extents_reorderable_list_view_builder.dart';
+import 'package:known_extents_list_view_builder/known_extents_list_view_builder.dart';
 
 void main() {
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -29,10 +30,12 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+         
           title: Text(widget.title),
         ),
         body: ExampleList());
@@ -45,40 +48,35 @@ class ExampleList extends StatefulWidget {
 }
 
 class _ExampleListState extends State<ExampleList> {
-  static List<Map<String, dynamic>> items = List.generate(
-      10000,
-      (index) => (index % 5 == 0)
-          ? {'text': 'header', 'id': index}
-          : {'text': "List Item: $index", 'id': index});
+  static List<String> items =
+      List.generate(10000, (index) => "List Item: $index");
 
   late ScrollController scrollController;
-  final double _itemHeight = 60.0;
+  final double _itemHeight = 150.0;
   final double _headerHeight = 21.0;
   Widget _itemBuilder(_, index) {
-    final item = items[index];
-    if (item['text'] != 'header') {
-      return Container(
+    if (index % 5 == 0) {
+      return Column(children: [
+        Container(
+            child: Text('header'),
+            color: Colors.green.shade100,
             width: Size.infinite.width,
-            height: _itemHeight,
-            key: ValueKey(items[index]),
-            color: Colors.blueGrey.shade100,
-            child: Center(child: Text(item['text'])));
-    } else {
-      return Container(
-          decoration: BoxDecoration(border: Border.all()),
-          key: ValueKey(items[index]),
-          child: Text(item['text']),
-          height: _headerHeight);
+            height: _headerHeight),
+        Container(
+          color: index % 2 == 0 ? Colors.blueGrey.shade100 :  Colors.grey.shade100,
+          width: Size.infinite.width,
+          child: Text(items[index]), height: _itemHeight)
+      ]);
     }
+    return Container(
+      color: index % 2 == 0 ? Colors.blueGrey.shade100 :  Colors.grey.shade100,
+      width: Size.infinite.width,
+      child: Text(items[index]), height: _itemHeight);
   }
 
   List<double> get _itemExtents {
-    return items.map((item) {
-      if (item['text'] == 'header') {
-        return _headerHeight;
-      }
-      return _itemHeight;
-    }).toList();
+    return List.generate(10000,
+        (index) => index % 5 == 0 ? _itemHeight + _headerHeight : _itemHeight);
   }
 
   @override
@@ -91,12 +89,11 @@ class _ExampleListState extends State<ExampleList> {
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
-        KnownExtentsReorderableListView.builder(
-          onReorder: (int start, int end) {},
+        KnownExtentsListView.builder(
           itemExtents: _itemExtents,
           physics: AlwaysScrollableScrollPhysics(),
           itemCount: items.length,
-          scrollController: scrollController,
+          controller: scrollController,
           itemBuilder: _itemBuilder,
         )
       ],
