@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 
 import 'package:known_extents_list_view_builder/known_extents_reorderable_list_view_builder.dart';
@@ -5,6 +7,8 @@ import 'package:known_extents_list_view_builder/known_extents_reorderable_list_v
 void main() {
   runApp(MyApp());
 }
+
+JsonEncoder encoder = new JsonEncoder.withIndent('  ');
 
 class MyApp extends StatelessWidget {
   @override
@@ -58,11 +62,11 @@ class _ExampleListState extends State<ExampleList> {
     final item = items[index];
     if (item['text'] != 'header') {
       return Container(
-            width: Size.infinite.width,
-            height: _itemHeight,
-            key: ValueKey(items[index]),
-            color: Colors.blueGrey.shade100,
-            child: Center(child: Text(item['text'])));
+          width: Size.infinite.width,
+          height: _itemHeight,
+          key: ValueKey(items[index]),
+          color: Colors.blueGrey.shade100,
+          child: Center(child: Text(item['text'])));
     } else {
       return Container(
           decoration: BoxDecoration(border: Border.all()),
@@ -72,13 +76,16 @@ class _ExampleListState extends State<ExampleList> {
     }
   }
 
-  List<double> get _itemExtents {
-    return items.map((item) {
+  List<double> makeItemExtents() {
+    print('makeItemExtents called');
+    final _result = items.map((item) {
       if (item['text'] == 'header') {
         return _headerHeight;
       }
       return _itemHeight;
     }).toList();
+    print('extents: ${encoder.convert(_result.sublist(0, 10))}');
+    return _result;
   }
 
   @override
@@ -92,8 +99,18 @@ class _ExampleListState extends State<ExampleList> {
     return Stack(
       children: <Widget>[
         KnownExtentsReorderableListView.builder(
-          onReorder: (int start, int end) {},
-          itemExtents: _itemExtents,
+          onReorder: (int start, int end) {
+            print('start, end:${start} $end}');
+            setState(() {
+              items.insert(end, items[start]);
+              if (start > end) {
+                start += 1;
+              }
+              items.removeAt(start);
+              print('items: ${encoder.convert(items.sublist(0, 10))}');
+            });
+          },
+          itemExtents: makeItemExtents(),
           physics: AlwaysScrollableScrollPhysics(),
           itemCount: items.length,
           scrollController: scrollController,
