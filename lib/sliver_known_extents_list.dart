@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:known_extents_list_view_builder/render_sliver_known_extents_list.dart';
 
 class SliverKnownExtentsList extends SliverMultiBoxAdaptorWidget {
@@ -16,13 +15,14 @@ class SliverKnownExtentsList extends SliverMultiBoxAdaptorWidget {
 
   @override
   RenderSliverKnownExtentsList createRenderObject(BuildContext context) {
-    final SliverMultiBoxAdaptorElement element = context as SliverMultiBoxAdaptorElement;
-    return RenderSliverKnownExtentsList(childManager: element, itemExtents: itemExtents);
+    final SliverMultiBoxAdaptorElement element =
+        context as SliverMultiBoxAdaptorElement;
+    return RenderSliverKnownExtentsList(
+        childManager: element, itemExtents: itemExtents);
   }
 
   @override
   void updateRenderObject(BuildContext context, dynamic renderObject) {
-    
     renderObject.itemExtents = itemExtents;
   }
 }

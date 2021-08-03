@@ -1,4 +1,5 @@
-// Bandaid package.
+// Bandaid package created largely by copying Flutter code and modifying it.
+// Copyright 2014 The Flutter Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -8,19 +9,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:known_extents_list_view_builder/sliver_known_extents_list.dart';
-import 'package:logger/logger.dart';
-
-final logger = Logger(filter: null);
-
-class MyFilter extends LogFilter {
-  @override
-  bool shouldLog(LogEvent event) {
-    if (event.level == Level.debug) {
-      return false;
-    }
-    return true;
-  }
-}
 
 /// A sliver list that allows the user to interactively reorder the list items.
 ///
@@ -325,7 +313,6 @@ class SliverKnownExtentsReorderableListState
               _extentOffset(item.itemExtent, _scrollDirection);
         }
       }
-      logger.d('_finalDropPosition:${_finalDropPosition}');
     });
   }
 
@@ -426,12 +413,8 @@ class SliverKnownExtentsReorderableListState
       }
     }
     if (newIndex != _insertIndex) {
-      print("new check ======== ");
       _insertIndex = newIndex;
       for (final _ReorderableItemState item in _items.values) {
-        // newIndex = 1;
-        // logger.d(
-        //     'continuing: ${item.index == _dragIndex || !item.mounted} \nitem.index:${item.index},_dragIndex:$_dragIndex\nnewIndex:$newIndex');
         if (item.index == _dragIndex || !item.mounted) continue;
         item.updateForGap(newIndex - 1, gapExtent, true, _reverse, _dragIndex!);
       }
@@ -676,8 +659,6 @@ class _ReorderableItemState extends State<_ReorderableItem> {
       }
       rebuild();
     }
-    logger.d(
-        'index: $index gapIndex: $gapIndex, start and target: $_startOffset, $_targetOffset');
   }
 
   void resetGap() {
@@ -694,8 +675,6 @@ class _ReorderableItemState extends State<_ReorderableItem> {
     final RenderBox itemRenderBox = context.findRenderObject()! as RenderBox;
     final Offset itemPosition =
         itemRenderBox.localToGlobal(Offset.zero) + _targetOffset;
-    // logger.d(
-    //     'index: $index, itemRenderBox.size: ${itemRenderBox.size} itemPostion: $itemPosition');
     return itemPosition & itemRenderBox.size;
   }
 
@@ -743,7 +722,6 @@ class ReorderableDragStartListener extends StatelessWidget {
   Widget build(BuildContext context) {
     return Listener(
       onPointerDown: (PointerDownEvent event) {
-        logger.d('drag started');
         _startDragging(context, event);
       },
       child: child,

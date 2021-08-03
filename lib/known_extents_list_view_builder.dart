@@ -60,4 +60,3 @@ class KnownExtentsListView extends BoxScrollView {
     );
   }
 }
-

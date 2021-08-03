@@ -30,12 +30,10 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-         
           title: Text(widget.title),
         ),
         body: ExampleList());
@@ -63,15 +61,19 @@ class _ExampleListState extends State<ExampleList> {
             width: Size.infinite.width,
             height: _headerHeight),
         Container(
-          color: index % 2 == 0 ? Colors.blueGrey.shade100 :  Colors.grey.shade100,
-          width: Size.infinite.width,
-          child: Text(items[index]), height: _itemHeight)
+            color: index % 2 == 0
+                ? Colors.blueGrey.shade100
+                : Colors.grey.shade100,
+            width: Size.infinite.width,
+            child: Text(items[index]),
+            height: _itemHeight)
       ]);
     }
     return Container(
-      color: index % 2 == 0 ? Colors.blueGrey.shade100 :  Colors.grey.shade100,
-      width: Size.infinite.width,
-      child: Text(items[index]), height: _itemHeight);
+        color: index % 2 == 0 ? Colors.blueGrey.shade100 : Colors.grey.shade100,
+        width: Size.infinite.width,
+        child: Text(items[index]),
+        height: _itemHeight);
   }
 
   List<double> get _itemExtents {

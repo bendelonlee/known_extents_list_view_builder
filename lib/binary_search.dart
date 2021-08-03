@@ -1,6 +1,6 @@
 /// Like Flutter's binarySearch, but will return nearest index, prefering the lower index.
-int binarySearchReturnLowest<num>(
-    List<double> sortedList, double value, {bool matchReturnsMin = false}) {
+int binarySearchReturnLowest<num>(List<double> sortedList, double value,
+    {bool matchReturnsMin = false}) {
   int start = 0;
   int end = sortedList.length - 1;
   int mid;

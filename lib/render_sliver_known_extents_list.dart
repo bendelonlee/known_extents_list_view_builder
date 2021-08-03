@@ -1,4 +1,5 @@
-// Bandaid package
+// Bandaid package created largely by copying Flutter code and modifying it.
+// Copyright 2014 The Flutter Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 import 'dart:math' as math;
@@ -6,7 +7,6 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:known_extents_list_view_builder/binary_search.dart';
-import 'package:logger/logger.dart';
 
 /// A sliver that contains multiple box children that have the same extent in
 /// the main axis.
@@ -55,11 +55,8 @@ abstract class RenderSliverKnownExtentsBoxAdaptor
   /// layout offset zero.
   @protected
   double indexToLayoutOffset(List<double> itemHeights, int index) {
-    // logger.d('Index: $index, Offset: ${itemHeights[index]}');
     return itemHeights[index];
   }
-
-  final logger = Logger(); //TODO: remove when finished
 
   /// The minimum child index that is visible at the given scroll offset.
   ///
@@ -87,9 +84,6 @@ abstract class RenderSliverKnownExtentsBoxAdaptor
     final _result = binarySearchReturnLowest(itemHeights, scrollOffset,
             matchReturnsMin: true)
         .clamp(0, itemHeights.length - 1);
-
-    logger.d(
-        'getMaxChildIndexForScrollOffset scrollOffset: $scrollOffset, index: $_result');
     return _result;
   }
 
@@ -105,7 +99,6 @@ abstract class RenderSliverKnownExtentsBoxAdaptor
   ///
   ///  * [computeMaxScrollOffset], which is similar but must provide a precise
   ///    value.
-  //TODO: There's really no point in having this method when the max is easily known
   @protected
   double estimateMaxScrollOffset({
     required int firstIndex,
@@ -114,6 +107,8 @@ abstract class RenderSliverKnownExtentsBoxAdaptor
     double leadingScrollOffset = 0,
     double trailingScrollOffset = 0,
   }) {
+    //TODO: There's really no point in having this method when the max is easily 
+    //      known... though I'm reluctant to remove in case it breaks something.
     return computeMaxScrollOffset(itemHeights);
   }
 
@@ -139,7 +134,6 @@ abstract class RenderSliverKnownExtentsBoxAdaptor
   ///    values.
   @protected
   double computeMaxScrollOffset(List<double> itemHeights) {
-    logger.d('computeMaxScrollOffset: ${itemHeights.last}');
     return itemHeights.last;
   }
 
@@ -241,8 +235,6 @@ abstract class RenderSliverKnownExtentsBoxAdaptor
     }
 
     if (trailingChildWithLayout == null) {
-      logger.d(
-          'trailingChildWithLayout was null:${'trailingChildWithLayout was null'}');
       firstChild!.layout(childConstraints(indexOf(firstChild!)));
       final SliverMultiBoxAdaptorParentData childParentData =
           firstChild!.parentData! as SliverMultiBoxAdaptorParentData;
@@ -256,8 +248,6 @@ abstract class RenderSliverKnownExtentsBoxAdaptor
     for (int index = indexOf(trailingChildWithLayout!) + 1;
         targetLastIndex == null || index <= targetLastIndex;
         ++index) {
-      print('index: $index');
-
       RenderBox? child = childAfter(trailingChildWithLayout!);
       if (child == null || indexOf(child) != index) {
         int _index = child == null ? index : indexOf(child);
@@ -281,19 +271,13 @@ abstract class RenderSliverKnownExtentsBoxAdaptor
     }
 
     final int lastIndex = indexOf(lastChild!);
-    print('lastIndex: $lastIndex');
     final double leadingScrollOffset =
         indexToLayoutOffset(itemHeights, firstIndex);
     final double trailingScrollOffset =
         indexToLayoutOffset(itemHeights, lastIndex + 1);
-    if (!(firstIndex == 0 ||
+    assert(firstIndex == 0 ||
         childScrollOffset(firstChild!)! - scrollOffset <=
-            precisionErrorTolerance)) {
-      print("firstIndex: $firstIndex, ${childScrollOffset(firstChild!)}");
-    }
-    // assert(firstIndex == 0 ||
-    //     childScrollOffset(firstChild!)! - scrollOffset <=
-    //         precisionErrorTolerance);
+            precisionErrorTolerance);
     assert(debugAssertChildListIsNonEmptyAndContiguous());
     assert(indexOf(firstChild!) == firstIndex);
     assert(targetLastIndex == null || lastIndex <= targetLastIndex);

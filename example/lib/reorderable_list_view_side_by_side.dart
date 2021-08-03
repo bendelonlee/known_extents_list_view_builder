@@ -37,11 +37,13 @@ class _MyHomePageState extends State<MyHomePage> {
     return Column(
       children: [
         Center(
-          child:
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(title, style: TextStyle(fontSize: 25),),
-              ),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              title,
+              style: TextStyle(fontSize: 25),
+            ),
+          ),
         ),
         ConstrainedBox(
           constraints: BoxConstraints(
@@ -112,14 +114,12 @@ class _ExampleListState extends State<ExampleList> {
   }
 
   List<double> makeItemExtents() {
-    print('makeItemExtents called');
     final _result = items.map((item) {
       if (item['text'] == 'header') {
         return _headerHeight;
       }
       return _itemHeight;
     }).toList();
-    print('extents: ${encoder.convert(_result.sublist(0, 10))}');
     return _result;
   }
 
