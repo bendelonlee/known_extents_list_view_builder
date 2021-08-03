@@ -5,9 +5,11 @@
 import 'dart:ui' show lerpDouble;
 
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart' hide ReorderableDelayedDragStartListener, ReorderableDragStartListener;
+import 'package:flutter/material.dart'
+    hide ReorderableDelayedDragStartListener, ReorderableDragStartListener;
 import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart' hide ReorderableDelayedDragStartListener, ReorderableDragStartListener;
+import 'package:flutter/widgets.dart'
+    hide ReorderableDelayedDragStartListener, ReorderableDragStartListener;
 import 'package:known_extents_list_view_builder/known_extents_sliver_reorderable_list.dart';
 
 /// A list whose items the user can interactively reorder by dragging.
@@ -63,6 +65,7 @@ import 'package:known_extents_list_view_builder/known_extents_sliver_reorderable
 ///{@end-tool}
 class KnownExtentsReorderableListView extends StatefulWidget {
   final List<double> itemExtents;
+
   /// Creates a reorderable list from a pre-built list of widgets.
   ///
   /// See also:
@@ -302,6 +305,7 @@ class KnownExtentsReorderableListView extends StatefulWidget {
 
   /// {@macro flutter.widgets.scroll_view.anchor}
   final double anchor;
+
   /// {@macro flutter.rendering.RenderViewportBase.cacheExtent}
   final double? cacheExtent;
 
@@ -326,6 +330,8 @@ class KnownExtentsReorderableListView extends StatefulWidget {
 }
 
 class _ReorderableListViewState extends State<KnownExtentsReorderableListView> {
+  int rebuildCount = 0;
+  int? itemExtentsHashCode;
   Widget _wrapWithSemantics(Widget child, int index) {
     void reorder(int startIndex, int endIndex) {
       if (startIndex != endIndex) widget.onReorder(startIndex, endIndex);
@@ -489,6 +495,12 @@ class _ReorderableListViewState extends State<KnownExtentsReorderableListView> {
 
   @override
   Widget build(BuildContext context) {
+    if (itemExtentsHashCode != widget.itemExtents.hashCode) {
+      if (itemExtentsHashCode != null) {
+        rebuildCount += 1;
+      }
+      itemExtentsHashCode = widget.itemExtents.hashCode;
+    }
     assert(debugCheckHasMaterialLocalizations(context));
     assert(debugCheckHasOverlay(context));
 
@@ -544,6 +556,7 @@ class _ReorderableListViewState extends State<KnownExtentsReorderableListView> {
           SliverPadding(
             padding: listPadding,
             sliver: SliverKnownExtentsReorderableList(
+              key: ValueKey(rebuildCount),
               itemExtents: widget.itemExtents,
               itemBuilder: _itemBuilder,
               itemCount: widget.itemCount,
