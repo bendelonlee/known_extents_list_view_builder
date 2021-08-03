@@ -229,7 +229,7 @@ class _ExampleListState extends State<ExampleList> {
       return KnownExtentsReorderableListView.builder(
         onReorder: _onReorder,
         itemExtents: makeItemExtents(),
-        physics: AlwaysScrollableScrollPhysics(),
+        physics: ClampingScrollPhysics(),
         itemCount: items.length,
         scrollController: scrollController,
         itemBuilder: _itemBuilder,
@@ -237,7 +237,7 @@ class _ExampleListState extends State<ExampleList> {
     } else {
       return ReorderableListView.builder(
         onReorder: _onReorder,
-        physics: AlwaysScrollableScrollPhysics(),
+        physics: ClampingScrollPhysics(),
         itemCount: items.length,
         scrollController: scrollController,
         itemBuilder: _itemBuilder,
