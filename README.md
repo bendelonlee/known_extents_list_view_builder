@@ -1,16 +1,9 @@
 # known_extents_list_view_builder
 
-A new Flutter project.
+This package is intended to address [this issue in Flutter](https://github.com/flutter/flutter/issues/52207).
 
-## Getting Started
+This is not official Flutter package. Maintainance and edges cases are not guaranteed.
 
-This project is a starting point for a Flutter application.
+To see the difference it makes when using a scroll bar to move through a long, variable extent list you can run `example/lib/reorderable_list_view_side_by_side.dart` or watch this video taken in release mode (add video link).
 
-A few resources to get you started if this is your first Flutter project:
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.

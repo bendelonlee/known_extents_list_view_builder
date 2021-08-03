@@ -31,9 +31,47 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  Widget listDisplay(
-      {required BoxConstraints constraints, required bool useKnownExtents}) {
-    final title = useKnownExtents ? 'Using Known Extents' : 'No Optimization';
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: Text(widget.title),
+        ),
+        body: LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints constraints) {
+          return Row(
+            children: [
+              ListDisplay(constraints: constraints, useKnownExtents: false),
+              ListDisplay(constraints: constraints, useKnownExtents: true),
+            ],
+          );
+        }));
+  }
+}
+
+class ListDisplay extends StatefulWidget {
+  final bool useKnownExtents;
+  final BoxConstraints constraints;
+  const ListDisplay(
+      {Key? key, required this.constraints, required this.useKnownExtents})
+      : super(key: key);
+
+  @override
+  _ListDisplayState createState() => _ListDisplayState();
+}
+
+class _ListDisplayState extends State<ListDisplay> {
+  late ScrollController scrollController;
+  @override
+  void initState() {
+    scrollController = ScrollController();
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final title =
+        widget.useKnownExtents ? 'Using Known Extents' : 'No Optimization';
     return Column(
       children: [
         Center(
@@ -45,40 +83,87 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ),
         ),
+        Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ScrollButtons(controller: scrollController)),
         ConstrainedBox(
           constraints: BoxConstraints(
-              maxHeight: constraints.maxHeight - 50,
-              maxWidth: constraints.maxWidth / 2),
+              maxHeight: widget.constraints.maxHeight - 112,
+              maxWidth: widget.constraints.maxWidth / 2),
           child: Padding(
             padding: const EdgeInsets.all(8.0),
-            child: ExampleList(useKnownExtents: useKnownExtents),
+            child: ExampleList(
+              useKnownExtents: widget.useKnownExtents,
+              scrollController: scrollController,
+            ),
           ),
         ),
       ],
     );
   }
+}
+
+class ScrollButtons extends StatefulWidget {
+  final ScrollController controller;
+  const ScrollButtons({required this.controller, Key? key}) : super(key: key);
 
   @override
+  _ScrollButtonsState createState() => _ScrollButtonsState();
+}
+
+class _ScrollButtonsState extends State<ScrollButtons> {
+  final textController = TextEditingController(
+    text: '500000',
+  );
+  bool animate = false;
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: Text(widget.title),
-        ),
-        body: LayoutBuilder(
-            builder: (BuildContext context, BoxConstraints constraints) {
-          return Row(
-            children: [
-              listDisplay(constraints: constraints, useKnownExtents: false),
-              listDisplay(constraints: constraints, useKnownExtents: true),
-            ],
-          );
-        }));
+    return SizedBox(
+      width: 300,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Switch(
+              value: animate,
+              onChanged: (b) {
+                setState(() {
+                  animate = b;
+                });
+              }),
+              Spacer(),
+          TextButton(
+              onPressed: () {
+                if (animate) {
+                  widget.controller.animateTo(double.parse(textController.text),
+                      duration: Duration(milliseconds: 500), curve: Curves.ease);
+                } else {
+                  widget.controller.jumpTo(double.parse(textController.text));
+                }
+              },
+              child: animate ? Text('Animate to') : Text('Jump to')),
+          Spacer(
+            flex: 1,
+          ),
+          SizedBox(
+            width: 100,
+            child: TextField(
+              textAlign: TextAlign.center,
+              decoration: InputDecoration(
+                  border: UnderlineInputBorder(), labelText: 'pixels'),
+              keyboardType: TextInputType.number,
+              controller: textController,
+            ),
+          )
+        ],
+      ),
+    );
   }
 }
 
 class ExampleList extends StatefulWidget {
+  final ScrollController scrollController;
   final bool useKnownExtents;
-  ExampleList({this.useKnownExtents = true});
+  ExampleList({this.useKnownExtents = true, required this.scrollController});
   @override
   _ExampleListState createState() => _ExampleListState();
 }
@@ -125,7 +210,7 @@ class _ExampleListState extends State<ExampleList> {
 
   @override
   void initState() {
-    scrollController = ScrollController();
+    scrollController = widget.scrollController;
     super.initState();
   }
 
