@@ -1,7 +1,5 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
-
 import 'package:known_extents_list_view_builder/known_extents_reorderable_list_view_builder.dart';
 
 void main() {
@@ -18,7 +16,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: 'Known Extents Demo: 10,000 items side by side'),
     );
   }
 }
@@ -33,17 +31,52 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  Widget listDisplay(
+      {required BoxConstraints constraints, required bool useKnownExtents}) {
+    final title = useKnownExtents ? 'Using Known Extents' : 'No Optimization';
+    return Column(
+      children: [
+        Center(
+          child:
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(title, style: TextStyle(fontSize: 25),),
+              ),
+        ),
+        ConstrainedBox(
+          constraints: BoxConstraints(
+              maxHeight: constraints.maxHeight - 50,
+              maxWidth: constraints.maxWidth / 2),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ExampleList(useKnownExtents: useKnownExtents),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           title: Text(widget.title),
         ),
-        body: ExampleList());
+        body: LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints constraints) {
+          return Row(
+            children: [
+              listDisplay(constraints: constraints, useKnownExtents: false),
+              listDisplay(constraints: constraints, useKnownExtents: true),
+            ],
+          );
+        }));
   }
 }
 
 class ExampleList extends StatefulWidget {
+  final bool useKnownExtents;
+  ExampleList({this.useKnownExtents = true});
   @override
   _ExampleListState createState() => _ExampleListState();
 }
@@ -69,9 +102,11 @@ class _ExampleListState extends State<ExampleList> {
           child: Center(child: Text(item['text'])));
     } else {
       return Container(
-          decoration: BoxDecoration(border: Border.all()),
+          color: Colors.blueGrey.shade900,
+          width: Size.infinite.width,
           key: ValueKey(items[index]),
-          child: Text(item['text']),
+          child: Center(
+              child: Text(item['text'], style: TextStyle(color: Colors.white))),
           height: _headerHeight);
     }
   }
@@ -94,29 +129,39 @@ class _ExampleListState extends State<ExampleList> {
     super.initState();
   }
 
+  _onReorder(int start, int end) {
+    setState(() {
+      items.insert(end, items[start]);
+      if (start > end) {
+        start += 1;
+      }
+      items.removeAt(start);
+    });
+  }
+
+  _contents() {
+    if (widget.useKnownExtents) {
+      return KnownExtentsReorderableListView.builder(
+        onReorder: _onReorder,
+        itemExtents: makeItemExtents(),
+        physics: AlwaysScrollableScrollPhysics(),
+        itemCount: items.length,
+        scrollController: scrollController,
+        itemBuilder: _itemBuilder,
+      );
+    } else {
+      return ReorderableListView.builder(
+        onReorder: _onReorder,
+        physics: AlwaysScrollableScrollPhysics(),
+        itemCount: items.length,
+        scrollController: scrollController,
+        itemBuilder: _itemBuilder,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: <Widget>[
-        KnownExtentsReorderableListView.builder(
-          onReorder: (int start, int end) {
-            print('start, end:${start} $end}');
-            setState(() {
-              items.insert(end, items[start]);
-              if (start > end) {
-                start += 1;
-              }
-              items.removeAt(start);
-              print('items: ${encoder.convert(items.sublist(0, 10))}');
-            });
-          },
-          itemExtents: makeItemExtents(),
-          physics: AlwaysScrollableScrollPhysics(),
-          itemCount: items.length,
-          scrollController: scrollController,
-          itemBuilder: _itemBuilder,
-        )
-      ],
-    );
+    return _contents();
   }
 }
