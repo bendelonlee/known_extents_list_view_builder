@@ -4,7 +4,7 @@
 Watch [this video](https://vimeo.com/582598514) taken in release mode.
 
 ## About
-This package is intended to address [a performance issue in Flutter](https://github.com/flutter/flutter/issues/52207). Whereas the internal flutter list only allows you to pass in a fixed `itemExtent` to optimize for uniform lists, this allows you to pass in a list of `itemExtents`. Includes a basic list and a reorderable list.
+This package is intended to address [a performance issue in Flutter](https://github.com/flutter/flutter/issues/52207). Whereas the internal flutter list only allows you to pass in a fixed `itemExtent` to optimize for uniform lists, this allows you to pass in a list of `itemExtents` for when your list items have variable (though knowable) extents. Includes a basic list and a reorderable list.
 
 ## Examples
 Find examples of the basic list and of the reorderable lists side by side as shown in the video in `examples/lib`.
