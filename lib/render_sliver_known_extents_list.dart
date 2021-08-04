@@ -262,7 +262,6 @@ abstract class RenderSliverKnownExtentsBoxAdaptor
         child.layout(childConstraints(index));
       }
       trailingChildWithLayout = child;
-      assert(child != null);
       final SliverMultiBoxAdaptorParentData childParentData =
           child.parentData! as SliverMultiBoxAdaptorParentData;
       assert(childParentData.index == index);
@@ -384,8 +383,4 @@ List<double> _makeHeights(List<double> _extents) {
   }).toList();
 
   return [0, ..._list];
-}
-
-bool _isWithinPrecisionErrorTolerance(double actual, int round) {
-  return (actual - round).abs() < precisionErrorTolerance;
 }

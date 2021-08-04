@@ -94,14 +94,10 @@ class KnownExtentsReorderableListView extends StatefulWidget {
     this.keyboardDismissBehavior = ScrollViewKeyboardDismissBehavior.manual,
     this.restorationId,
     this.clipBehavior = Clip.hardEdge,
-  })  : assert(scrollDirection != null),
-        assert(onReorder != null),
-        assert(children != null),
-        assert(
+  })  : assert(
           children.every((Widget w) => w.key != null),
           'All children of this widget must have a key.',
         ),
-        assert(buildDefaultDragHandles != null),
         itemBuilder = ((BuildContext context, int index) => children[index]),
         itemCount = children.length,
         super(key: key);
@@ -187,10 +183,7 @@ class KnownExtentsReorderableListView extends StatefulWidget {
     this.keyboardDismissBehavior = ScrollViewKeyboardDismissBehavior.manual,
     this.restorationId,
     this.clipBehavior = Clip.hardEdge,
-  })  : assert(scrollDirection != null),
-        assert(itemCount >= 0),
-        assert(onReorder != null),
-        assert(buildDefaultDragHandles != null),
+  })  : assert(itemCount >= 0),
         super(key: key);
 
   /// {@macro flutter.widgets.reorderable_list.itemBuilder}
