@@ -1,7 +1,7 @@
 name: known_extents_list_view_builder
 description: A modification of basic Flutter widgets and other classes that fixes performance problem for long lists with variable (but knowable) item extents by allowing the user to pass in known item extents.
 version: 1.0.0
-homepage:
+repository: https://github.com/bendelonlee/known_extents_list_view_builder
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
