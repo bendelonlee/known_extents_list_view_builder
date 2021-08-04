@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:known_extents_list_view_builder/known_extents_reorderable_list_view_builder.dart';
+// This example shows two reorderable lists side by side.
+// For a basic example with a non-reorderable list see basic_list.dart
 
 void main() {
   runApp(MyApp());
