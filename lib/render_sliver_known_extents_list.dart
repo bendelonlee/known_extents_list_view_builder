@@ -107,7 +107,7 @@ abstract class RenderSliverKnownExtentsBoxAdaptor
     double leadingScrollOffset = 0,
     double trailingScrollOffset = 0,
   }) {
-    //TODO: There's really no point in having this method when the max is easily 
+    //TODO: There's really no point in having this method when the max is easily
     //      known... though I'm reluctant to remove in case it breaks something.
     return computeMaxScrollOffset(itemHeights);
   }
