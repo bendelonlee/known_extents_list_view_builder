@@ -246,6 +246,7 @@ class _ExampleListState extends State<ExampleList> {
         itemCount: items.length,
         scrollController: scrollController,
         itemBuilder: _itemBuilder,
+        overlayScale: 0.5,
       );
     } else {
       return ReorderableListView.builder(

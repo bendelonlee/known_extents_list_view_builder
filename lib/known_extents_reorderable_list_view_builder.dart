@@ -66,6 +66,7 @@ import 'package:known_extents_list_view_builder/known_extents_sliver_reorderable
 ///{@end-tool}
 class KnownExtentsReorderableListView extends StatefulWidget {
   final List<double> itemExtents;
+  final double? overlayScale;
 
   /// Creates a reorderable list from a pre-built list of widgets.
   ///
@@ -78,6 +79,7 @@ class KnownExtentsReorderableListView extends StatefulWidget {
     required List<Widget> children,
     required this.onReorder,
     required this.itemExtents,
+    this.overlayScale,
     this.proxyDecorator,
     this.buildDefaultDragHandles = true,
     this.padding,
@@ -167,6 +169,7 @@ class KnownExtentsReorderableListView extends StatefulWidget {
     required this.itemCount,
     required this.onReorder,
     required this.itemExtents,
+    this.overlayScale,
     this.proxyDecorator,
     this.buildDefaultDragHandles = true,
     this.padding,
@@ -552,6 +555,7 @@ class _ReorderableListViewState extends State<KnownExtentsReorderableListView> {
             sliver: SliverKnownExtentsReorderableList(
               key: ValueKey(rebuildCount),
               itemExtents: widget.itemExtents,
+              overlayScale: widget.overlayScale!,
               itemBuilder: _itemBuilder,
               itemCount: widget.itemCount,
               onReorder: widget.onReorder,

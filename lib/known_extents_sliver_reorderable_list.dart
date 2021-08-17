@@ -40,6 +40,7 @@ class SliverKnownExtentsReorderableList extends StatefulWidget {
   const SliverKnownExtentsReorderableList({
     Key? key,
     required this.itemExtents,
+    this.overlayScale = 1,
     required this.itemBuilder,
     required this.itemCount,
     required this.onReorder,
@@ -47,6 +48,7 @@ class SliverKnownExtentsReorderableList extends StatefulWidget {
   })  : assert(itemCount >= 0),
         super(key: key);
   final List<double> itemExtents;
+  final double overlayScale;
 
   /// {@macro flutter.widgets.reorderable_list.itemBuilder}
   final IndexedWidgetBuilder itemBuilder;
@@ -251,6 +253,7 @@ class SliverKnownExtentsReorderableListState
     _insertIndex = item.index;
     _dragInfo = _DragInfo(
       item: item,
+      overlayScale: widget.overlayScale,
       initialPosition: position,
       scrollDirection: _scrollDirection,
       onUpdate: _dragUpdate,
@@ -795,6 +798,7 @@ class _DragInfo extends Drag {
     this.onDropCompleted,
     this.proxyDecorator,
     required this.tickerProvider,
+    required this.overlayScale,
   }) {
     final RenderBox itemRenderBox =
         item.context.findRenderObject()! as RenderBox;
@@ -816,6 +820,8 @@ class _DragInfo extends Drag {
   final VoidCallback? onDropCompleted;
   final ReorderItemProxyDecorator? proxyDecorator;
   final TickerProvider tickerProvider;
+  final double overlayScale;
+
 
   late SliverKnownExtentsReorderableListState listState;
   late int index;
@@ -877,7 +883,8 @@ class _DragInfo extends Drag {
         listState: listState,
         index: index,
         child: child,
-        size: itemSize,
+        size:
+            Size(itemSize.width * overlayScale, itemSize.height * overlayScale),
         animation: _proxyAnimation!,
         position: dragPosition - dragOffset - _overlayOrigin(context),
         proxyDecorator: proxyDecorator,
