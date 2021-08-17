@@ -250,6 +250,7 @@ class _ExampleListState extends State<ExampleList> {
     double dx = ((widget.outerConstraints.maxWidth / 2) + 8) * scale;
     if (widget.useKnownExtents) {
       return KnownExtentsReorderableListView.builder(
+          crossAxisExtent: widget.outerConstraints.maxWidth / 2 - 16,
           onReorder: _onReorder,
           itemExtents: makeItemExtents(),
           physics: ClampingScrollPhysics(),

@@ -68,6 +68,7 @@ class KnownExtentsReorderableListView extends StatefulWidget {
   final List<double> itemExtents;
   final double? overlayScale;
   final Offset? overlayOffset;
+  final double crossAxisExtent;
 
   /// Creates a reorderable list from a pre-built list of widgets.
   ///
@@ -82,6 +83,7 @@ class KnownExtentsReorderableListView extends StatefulWidget {
     required this.itemExtents,
     this.overlayScale,
     this.overlayOffset,
+    required this.crossAxisExtent,
     this.proxyDecorator,
     this.buildDefaultDragHandles = true,
     this.padding,
@@ -173,6 +175,7 @@ class KnownExtentsReorderableListView extends StatefulWidget {
     required this.itemExtents,
     this.overlayScale,
     this.overlayOffset,
+    required this.crossAxisExtent,
     this.proxyDecorator,
     this.buildDefaultDragHandles = true,
     this.padding,
@@ -489,7 +492,9 @@ class _ReorderableListViewState extends State<KnownExtentsReorderableListView> {
           elevation: elevation,
         );
       },
-      child: child,
+      child: FittedBox(child: SizedBox(
+            width: widget.crossAxisExtent,
+            child: child),)
     );
   }
 
@@ -559,7 +564,7 @@ class _ReorderableListViewState extends State<KnownExtentsReorderableListView> {
               key: ValueKey(rebuildCount),
               itemExtents: widget.itemExtents,
               overlayScale: widget.overlayScale ?? 1,
-              overlayOffset: widget.overlayOffset ?? Offset(0,0),
+              overlayOffset: widget.overlayOffset ?? Offset(0, 0),
               itemBuilder: _itemBuilder,
               itemCount: widget.itemCount,
               onReorder: widget.onReorder,
