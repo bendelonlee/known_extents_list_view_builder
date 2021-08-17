@@ -51,8 +51,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   builder: (BuildContext context, BoxConstraints constraints) {
                 return Row(
                   children: [
-                    ListDisplay(constraints: constraints, useKnownExtents: false),
-                    ListDisplay(constraints: constraints, useKnownExtents: true),
+                    ListDisplay(
+                        constraints: constraints, useKnownExtents: false),
+                    ListDisplay(
+                        constraints: constraints, useKnownExtents: true),
                   ],
                 );
               }),
@@ -106,6 +108,7 @@ class _ListDisplayState extends State<ListDisplay> {
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: ExampleList(
+              outerConstraints: widget.constraints,
               useKnownExtents: widget.useKnownExtents,
               scrollController: scrollController,
             ),
@@ -143,12 +146,13 @@ class _ScrollButtonsState extends State<ScrollButtons> {
                   animate = b;
                 });
               }),
-              Spacer(),
+          Spacer(),
           TextButton(
               onPressed: () {
                 if (animate) {
                   widget.controller.animateTo(double.parse(textController.text),
-                      duration: Duration(milliseconds: 500), curve: Curves.ease);
+                      duration: Duration(milliseconds: 500),
+                      curve: Curves.ease);
                 } else {
                   widget.controller.jumpTo(double.parse(textController.text));
                 }
@@ -176,7 +180,11 @@ class _ScrollButtonsState extends State<ScrollButtons> {
 class ExampleList extends StatefulWidget {
   final ScrollController scrollController;
   final bool useKnownExtents;
-  ExampleList({this.useKnownExtents = true, required this.scrollController});
+  final BoxConstraints outerConstraints;
+  ExampleList(
+      {this.useKnownExtents = true,
+      required this.scrollController,
+      required this.outerConstraints});
   @override
   _ExampleListState createState() => _ExampleListState();
 }
@@ -238,16 +246,18 @@ class _ExampleListState extends State<ExampleList> {
   }
 
   _contents() {
+    double scale = 0.5;
+    double dx = ((widget.outerConstraints.maxWidth / 2) + 8) * scale;
     if (widget.useKnownExtents) {
       return KnownExtentsReorderableListView.builder(
-        onReorder: _onReorder,
-        itemExtents: makeItemExtents(),
-        physics: ClampingScrollPhysics(),
-        itemCount: items.length,
-        scrollController: scrollController,
-        itemBuilder: _itemBuilder,
-        overlayScale: 0.5,
-      );
+          onReorder: _onReorder,
+          itemExtents: makeItemExtents(),
+          physics: ClampingScrollPhysics(),
+          itemCount: items.length,
+          scrollController: scrollController,
+          itemBuilder: _itemBuilder,
+          overlayScale: scale,
+          overlayOffset: Offset(dx, 0.0));
     } else {
       return ReorderableListView.builder(
         onReorder: _onReorder,
