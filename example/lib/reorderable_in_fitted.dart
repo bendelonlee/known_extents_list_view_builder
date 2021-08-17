@@ -45,8 +45,8 @@ class _MyHomePageState extends State<MyHomePage> {
           child: FittedBox(
             fit: BoxFit.fitWidth,
             child: SizedBox(
-              height: 1000,
-              width: 1500,
+              height: 500,
+              width: 1000,
               child: LayoutBuilder(
                   builder: (BuildContext context, BoxConstraints constraints) {
                 return Row(
@@ -86,7 +86,8 @@ class _ListDisplayState extends State<ListDisplay> {
   @override
   Widget build(BuildContext context) {
     final title =
-        widget.useKnownExtents ? 'Using Known Extents' : 'No Optimization';
+      widget.useKnownExtents ? 'Using Known Extents, fixing for being inside a fittedBox' : 'No Optimization / fixes';
+
     return Column(
       children: [
         Center(
@@ -94,7 +95,7 @@ class _ListDisplayState extends State<ListDisplay> {
             padding: const EdgeInsets.all(8.0),
             child: Text(
               title,
-              style: TextStyle(fontSize: 25),
+              style: TextStyle(fontSize: 15),
             ),
           ),
         ),
@@ -246,7 +247,7 @@ class _ExampleListState extends State<ExampleList> {
   }
 
   _contents() {
-    double scale = 0.5;
+    double scale = 0.75;
     double dx = ((widget.outerConstraints.maxWidth / 2) + 8) * scale;
     if (widget.useKnownExtents) {
       return KnownExtentsReorderableListView.builder(
