@@ -33,6 +33,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  double innerWidth = 1500;
+  double outerWidth = 750;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,20 +42,20 @@ class _MyHomePageState extends State<MyHomePage> {
           title: Text(widget.title),
         ),
         body: SizedBox(
-          width: 750,
+          width: outerWidth,
           height: 500,
           child: FittedBox(
             fit: BoxFit.fitWidth,
             child: SizedBox(
               height: 500,
-              width: 1000,
+              width: innerWidth,
               child: LayoutBuilder(
                   builder: (BuildContext context, BoxConstraints constraints) {
                 return Row(
                   children: [
+                    
                     ListDisplay(
-                        constraints: constraints, useKnownExtents: false),
-                    ListDisplay(
+                      scale: outerWidth / innerWidth,
                         constraints: constraints, useKnownExtents: true),
                   ],
                 );
@@ -67,8 +69,12 @@ class _MyHomePageState extends State<MyHomePage> {
 class ListDisplay extends StatefulWidget {
   final bool useKnownExtents;
   final BoxConstraints constraints;
+  final double scale;
   const ListDisplay(
-      {Key? key, required this.constraints, required this.useKnownExtents})
+      {Key? key,
+      required this.constraints,
+      required this.useKnownExtents,
+      this.scale = 1})
       : super(key: key);
 
   @override
@@ -85,8 +91,9 @@ class _ListDisplayState extends State<ListDisplay> {
 
   @override
   Widget build(BuildContext context) {
-    final title =
-      widget.useKnownExtents ? 'Using Known Extents, fixing for being inside a fittedBox' : 'No Optimization / fixes';
+    final title = widget.useKnownExtents
+        ? 'Using Known Extents, fixing for being inside a fittedBox'
+        : 'No Optimization / fixes';
 
     return Column(
       children: [
@@ -109,6 +116,7 @@ class _ListDisplayState extends State<ListDisplay> {
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: ExampleList(
+              scale: widget.scale,
               outerConstraints: widget.constraints,
               useKnownExtents: widget.useKnownExtents,
               scrollController: scrollController,
@@ -182,8 +190,10 @@ class ExampleList extends StatefulWidget {
   final ScrollController scrollController;
   final bool useKnownExtents;
   final BoxConstraints outerConstraints;
+  final double scale;
   ExampleList(
       {this.useKnownExtents = true,
+      this.scale = 1,
       required this.scrollController,
       required this.outerConstraints});
   @override
@@ -247,7 +257,7 @@ class _ExampleListState extends State<ExampleList> {
   }
 
   _contents() {
-    double scale = 0.75;
+    double scale = widget.scale;
     double dx = ((widget.outerConstraints.maxWidth / 2) + 8) * scale;
     if (widget.useKnownExtents) {
       return KnownExtentsReorderableListView.builder(

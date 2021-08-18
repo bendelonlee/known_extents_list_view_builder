@@ -314,7 +314,7 @@ class SliverKnownExtentsReorderableListState
               _extentOffset(item.itemExtent, _scrollDirection);
         } else {
           _finalDropPosition = _itemOffsetAt(itemIndex) +
-              _extentOffset(item.itemExtent, _scrollDirection);
+              _extentOffset(item.itemExtent * widget.overlayScale, _scrollDirection);
         }
       }
     });
@@ -373,7 +373,7 @@ class SliverKnownExtentsReorderableListState
       final double itemStart =
           _scrollDirection == Axis.vertical ? geometry.top : geometry.left;
       final double itemExtent =
-          _scrollDirection == Axis.vertical ? geometry.height : geometry.width;
+          (_scrollDirection == Axis.vertical ? geometry.height : geometry.width) ;
       final double itemEnd = itemStart + itemExtent;
       final double itemMiddle = itemStart + itemExtent / 2;
 
@@ -439,11 +439,11 @@ class SliverKnownExtentsReorderableListState
       final Offset scrollOrigin = scrollRenderBox.localToGlobal(Offset.zero);
       final double scrollStart = _offsetExtent(scrollOrigin, _scrollDirection);
       final double scrollEnd =
-          scrollStart + _sizeExtent(scrollRenderBox.size, _scrollDirection);
+          scrollStart + _sizeExtent(scrollRenderBox.size, _scrollDirection) * widget.overlayScale;
 
       final double proxyStart = _offsetExtent(
           _dragInfo!.dragPosition - _dragInfo!.dragOffset, _scrollDirection);
-      final double proxyEnd = proxyStart + _dragInfo!.itemExtent;
+      final double proxyEnd = proxyStart + _dragInfo!.itemExtent * widget.overlayScale;
 
       if (_reverse) {
         if (proxyEnd > scrollEnd &&
@@ -827,7 +827,6 @@ class _DragInfo extends Drag {
   final double overlayScale;
   final Offset overlayOffset;
 
-
   late SliverKnownExtentsReorderableListState listState;
   late int index;
   late Widget child;
@@ -883,6 +882,9 @@ class _DragInfo extends Drag {
   }
 
   Widget createProxy(BuildContext context) {
+    final position = Offset(overlayOffset.dx, (dragPosition - dragOffset).dy);
+    print('position: $position');
+    print('dragPosition $dragPosition');
     return capturedThemes.wrap(
       _DragItemProxy(
         listState: listState,
