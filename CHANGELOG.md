@@ -5,3 +5,7 @@
 ## 1.0.1
 
 * Fixes some issues pointed out by the pub points scorer.
+
+## 1.0.2
+
+* Improves documentation for importing drag listener.

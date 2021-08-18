@@ -9,6 +9,15 @@ This package is intended to address [a performance issue in Flutter](https://git
 ## Examples
 Find examples of the basic list and of the reorderable lists side by side as shown in the video in `examples/lib`.
 
+## Using ReorderableDragStartListener
+If you want to turn off default drag handles and create your own or wrap your widget in `ReorderableDragStartListener` or `ReorderableDelayedDragStartListener`, be sure to import the listener from this library's known_extents_sliver_reorderable_list and not from flutter/widgets. For example, if using ReorderableDragStartListener, your imports might look like this:
+
+```dart
+import 'package:flutter/material.dart' hide ReorderableDragStartListener;
+import 'package:known_extents_list_view_builder/known_extents_reorderable_list_view_builder.dart';
+import 'package:known_extents_list_view_builder/known_extents_sliver_reorderable_list.dart' show ReorderableDragStartListener;
+```
+
 ## Disclaimer
 This is not official Flutter package, nor is it put out by the Flutter team. Maintainance and edges cases are not guaranteed.
 
