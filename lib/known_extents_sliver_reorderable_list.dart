@@ -302,8 +302,7 @@ class SliverKnownExtentsReorderableListState
         if (_insertIndex! > item.index) {
           _finalDropPosition = _finalDropPosition!.translate(
               0.0,
-              -item.itemExtent *
-                  widget.overlayScale); //TODO: Make work for horizontal
+              -item.itemExtent); //TODO: Make work for horizontal
         }
       } else {
         // Inserting into the last spot on the list. If it's the only spot, put
@@ -317,7 +316,7 @@ class SliverKnownExtentsReorderableListState
         } else {
           _finalDropPosition = _itemOffsetAt(itemIndex) +
               _extentOffset(
-                  item.itemExtent * widget.overlayScale, _scrollDirection);
+                  item.itemExtent, _scrollDirection);
         }
       }
     });
