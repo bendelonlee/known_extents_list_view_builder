@@ -258,7 +258,6 @@ class _ExampleListState extends State<ExampleList> {
 
   _contents() {
     double scale = widget.scale;
-    double dx = ((widget.outerConstraints.maxWidth / 2) + 8) * scale;
     if (widget.useKnownExtents) {
       return KnownExtentsReorderableListView.builder(
           crossAxisExtent: widget.outerConstraints.maxWidth / 2 - 16,
@@ -269,7 +268,7 @@ class _ExampleListState extends State<ExampleList> {
           scrollController: scrollController,
           itemBuilder: _itemBuilder,
           overlayScale: scale,
-          overlayOffset: Offset(dx, 0.0));
+          overlayOffset: Offset(8.0 * scale, 0.0));
     } else {
       return ReorderableListView.builder(
         onReorder: _onReorder,
