@@ -380,16 +380,8 @@ class SliverKnownExtentsReorderableListState
               : geometry.width) *
           widget.overlayScale;
 
-      // print('itemExtent $itemExtent');
-
       final double itemEnd = itemStart + itemExtent;
       final double itemMiddle = itemStart + itemExtent / 2;
-
-      if (item.index == 3) {
-        print('itemMiddle $itemMiddle');
-        print('itemStart $itemStart');
-        print('proxyItemEnd $proxyItemEnd');
-      }
 
       if (_reverse) {
         if (itemEnd >= proxyItemEnd && proxyItemEnd >= itemMiddle) {
@@ -677,8 +669,6 @@ class _ReorderableItemState extends State<_ReorderableItem> {
         }
         _startOffset = _targetOffset;
       }
-      print('_startOffset $_startOffset');
-      print('_targetOffset $_targetOffset');
       rebuild();
     }
   }
@@ -695,7 +685,6 @@ class _ReorderableItemState extends State<_ReorderableItem> {
 
   Rect targetGeometry({double overlayScale = 1}) {
     final RenderBox itemRenderBox = context.findRenderObject()! as RenderBox;
-    print('_targetOffset $_targetOffset');
     final Offset itemPosition =
         itemRenderBox.localToGlobal(Offset.zero) + Offset(0, _targetOffset.dy * overlayScale);
     return itemPosition & (itemRenderBox.size);
@@ -903,10 +892,6 @@ class _DragInfo extends Drag {
   }
 
   Widget createProxy(BuildContext context) {
-    final position = Offset(overlayOffset.dx, (dragPosition - dragOffset).dy);
-    // print('position: $position');
-    // print('dragPosition $dragPosition');
-    // print('dragOffset $dragOffset');
     return capturedThemes.wrap(
       _DragItemProxy(
         listState: listState,
@@ -963,7 +948,6 @@ class _DragItemProxy extends StatelessWidget {
           effectivePosition = Offset.lerp(dropPosition - overlayOrigin,
               effectivePosition, Curves.easeOut.transform(animation.value))!;
         }
-        // print("effectivePosition.dy: ${effectivePosition.dy}");
         return Positioned(
           child: SizedBox(
             width: size.width,
