@@ -68,7 +68,7 @@ class KnownExtentsReorderableListView extends StatefulWidget {
   final List<double> itemExtents;
   final double? overlayScale;
   final Offset? overlayOffset;
-  final double crossAxisExtent;
+  final double? crossAxisExtent;
 
   /// Creates a reorderable list from a pre-built list of widgets.
   ///
@@ -83,7 +83,7 @@ class KnownExtentsReorderableListView extends StatefulWidget {
     required this.itemExtents,
     this.overlayScale,
     this.overlayOffset,
-    required this.crossAxisExtent,
+    this.crossAxisExtent,
     this.proxyDecorator,
     this.buildDefaultDragHandles = true,
     this.padding,
@@ -175,7 +175,7 @@ class KnownExtentsReorderableListView extends StatefulWidget {
     required this.itemExtents,
     this.overlayScale,
     this.overlayOffset,
-    required this.crossAxisExtent,
+    this.crossAxisExtent,
     this.proxyDecorator,
     this.buildDefaultDragHandles = true,
     this.padding,
@@ -483,19 +483,20 @@ class _ReorderableListViewState extends State<KnownExtentsReorderableListView> {
 
   Widget _proxyDecorator(Widget child, int index, Animation<double> animation) {
     return AnimatedBuilder(
-      animation: animation,
-      builder: (BuildContext context, Widget? child) {
-        final double animValue = Curves.easeInOut.transform(animation.value);
-        final double elevation = lerpDouble(0, 6, animValue)!;
-        return Material(
-          child: child,
-          elevation: elevation,
-        );
-      },
-      child: FittedBox(child: SizedBox(
-            width: widget.crossAxisExtent,
-            child: child),)
-    );
+        animation: animation,
+        builder: (BuildContext context, Widget? child) {
+          final double animValue = Curves.easeInOut.transform(animation.value);
+          final double elevation = lerpDouble(0, 6, animValue)!;
+          return Material(
+            child: child,
+            elevation: elevation,
+          );
+        },
+        child: widget.crossAxisExtent != null
+            ? FittedBox(
+                child: SizedBox(width: widget.crossAxisExtent!, child: child),
+              )
+            : child);
   }
 
   @override
