@@ -811,7 +811,7 @@ class _DragInfo extends Drag {
     child = item.widget.child;
     capturedThemes = item.widget.capturedThemes;
     dragPosition = initialPosition;
-    dragOffset = itemRenderBox.globalToLocal(initialPosition);
+    dragOffset = itemRenderBox.globalToLocal(initialPosition) * overlayScale;
     itemSize = item.context.size!;
     itemExtent = _sizeExtent(itemSize, scrollDirection);
     scrollable = Scrollable.of(item.context);
