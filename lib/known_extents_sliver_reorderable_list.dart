@@ -42,6 +42,7 @@ class SliverKnownExtentsReorderableList extends StatefulWidget {
     required this.itemExtents,
     this.overlayScale = 1,
     required this.overlayOffset,
+    this.overlayMargin = EdgeInsets.zero,
     required this.itemBuilder,
     required this.itemCount,
     required this.onReorder,
@@ -51,6 +52,7 @@ class SliverKnownExtentsReorderableList extends StatefulWidget {
   final List<double> itemExtents;
   final double overlayScale;
   final Offset overlayOffset;
+  final EdgeInsets overlayMargin;
 
   /// {@macro flutter.widgets.reorderable_list.itemBuilder}
   final IndexedWidgetBuilder itemBuilder;
@@ -257,6 +259,7 @@ class SliverKnownExtentsReorderableListState
       item: item,
       overlayScale: widget.overlayScale,
       overlayOffset: widget.overlayOffset,
+      overlayMargin: widget.overlayMargin,
       initialPosition: position,
       scrollDirection: _scrollDirection,
       onUpdate: _dragUpdate,
@@ -301,8 +304,7 @@ class SliverKnownExtentsReorderableListState
         _finalDropPosition = _itemOffsetAt(_insertIndex!);
         if (_insertIndex! > item.index) {
           _finalDropPosition = _finalDropPosition!.translate(
-              0.0,
-              -item.itemExtent); //TODO: Make work for horizontal
+              0.0, -item.itemExtent); //TODO: Make work for horizontal
         }
       } else {
         // Inserting into the last spot on the list. If it's the only spot, put
@@ -315,8 +317,7 @@ class SliverKnownExtentsReorderableListState
               _extentOffset(item.itemExtent, _scrollDirection);
         } else {
           _finalDropPosition = _itemOffsetAt(itemIndex) +
-              _extentOffset(
-                  item.itemExtent, _scrollDirection);
+              _extentOffset(item.itemExtent, _scrollDirection);
         }
       }
     });
@@ -363,7 +364,7 @@ class SliverKnownExtentsReorderableListState
     final double gapExtent = _dragInfo!.itemExtent;
     final double proxyItemStart = _offsetExtent(
         _dragInfo!.dragPosition - _dragInfo!.dragOffset, _scrollDirection);
-    final double proxyItemEnd = proxyItemStart + gapExtent;
+    final double proxyItemEnd = proxyItemStart + gapExtent +  widget.overlayMargin.top;
 
     // Find the new index for inserting the item being dragged.
     int newIndex = _insertIndex!;
@@ -685,8 +686,8 @@ class _ReorderableItemState extends State<_ReorderableItem> {
 
   Rect targetGeometry({double overlayScale = 1}) {
     final RenderBox itemRenderBox = context.findRenderObject()! as RenderBox;
-    final Offset itemPosition =
-        itemRenderBox.localToGlobal(Offset.zero) + Offset(0, _targetOffset.dy * overlayScale);
+    final Offset itemPosition = itemRenderBox.localToGlobal(Offset.zero) +
+        Offset(0, _targetOffset.dy * overlayScale);
     return itemPosition & (itemRenderBox.size);
   }
 
@@ -811,6 +812,7 @@ class _DragInfo extends Drag {
     required this.tickerProvider,
     required this.overlayScale,
     required this.overlayOffset,
+    required this.overlayMargin,
   }) {
     final RenderBox itemRenderBox =
         item.context.findRenderObject()! as RenderBox;
@@ -835,6 +837,7 @@ class _DragInfo extends Drag {
   final TickerProvider tickerProvider;
   final double overlayScale;
   final Offset overlayOffset;
+  final EdgeInsets overlayMargin;
 
   late SliverKnownExtentsReorderableListState listState;
   late int index;
@@ -897,10 +900,16 @@ class _DragInfo extends Drag {
         listState: listState,
         index: index,
         child: child,
-        size:
-            Size(itemSize.width * overlayScale, itemSize.height * overlayScale),
+        size: Size(
+            itemSize.width * overlayScale +
+                overlayMargin.left +
+                overlayMargin.right,
+            itemSize.height * overlayScale +
+                overlayMargin.top +
+                overlayMargin.bottom),
         animation: _proxyAnimation!,
-        position: Offset(overlayOffset.dx, (dragPosition - dragOffset).dy),
+        position: Offset(overlayOffset.dx,
+            (dragPosition - dragOffset).dy - overlayMargin.top),
         proxyDecorator: proxyDecorator,
       ),
     );
