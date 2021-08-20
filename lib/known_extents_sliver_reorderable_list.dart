@@ -8,6 +8,7 @@ import 'dart:math';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
+import 'package:known_extents_list_view_builder/known_extents_reorderable_list_view_builder.dart';
 import 'package:known_extents_list_view_builder/sliver_known_extents_list.dart';
 
 /// A sliver list that allows the user to interactively reorder the list items.
@@ -46,6 +47,8 @@ class SliverKnownExtentsReorderableList extends StatefulWidget {
     required this.itemBuilder,
     required this.itemCount,
     required this.onReorder,
+    this.onDragStart,
+    this.onDragReset,
     this.proxyDecorator,
   })  : assert(itemCount >= 0),
         super(key: key);
@@ -62,6 +65,9 @@ class SliverKnownExtentsReorderableList extends StatefulWidget {
 
   /// {@macro flutter.widgets.reorderable_list.onReorder}
   final ReorderCallback onReorder;
+
+  final DragStartCallback? onDragStart;
+  final DragCancelCallback? onDragReset;
 
   /// {@macro flutter.widgets.reorderable_list.proxyDecorator}
   final ReorderItemProxyDecorator? proxyDecorator;
@@ -255,6 +261,7 @@ class SliverKnownExtentsReorderableListState
     item.rebuild();
 
     _insertIndex = item.index;
+    if (widget.onDragStart != null) widget.onDragStart!(item.index);
     _dragInfo = _DragInfo(
       item: item,
       overlayScale: widget.overlayScale,
@@ -294,6 +301,8 @@ class SliverKnownExtentsReorderableListState
   }
 
   void _dragCancel(_DragInfo item) {
+    widget.onDragReset!(item.index);
+    print('drag canceled in package');
     _dragReset();
   }
 
@@ -335,6 +344,7 @@ class SliverKnownExtentsReorderableListState
   void _dragReset() {
     setState(() {
       if (_dragInfo != null) {
+        widget.onDragReset!(_dragInfo!.index);
         if (_dragIndex != null && _items.containsKey(_dragIndex)) {
           final _ReorderableItemState dragItem = _items[_dragIndex!]!;
           dragItem._dragging = false;
@@ -364,7 +374,8 @@ class SliverKnownExtentsReorderableListState
     final double gapExtent = _dragInfo!.itemExtent;
     final double proxyItemStart = _offsetExtent(
         _dragInfo!.dragPosition - _dragInfo!.dragOffset, _scrollDirection);
-    final double proxyItemEnd = proxyItemStart + gapExtent +  widget.overlayMargin.top;
+    final double proxyItemEnd =
+        proxyItemStart + gapExtent + widget.overlayMargin.top;
 
     // Find the new index for inserting the item being dragged.
     int newIndex = _insertIndex!;

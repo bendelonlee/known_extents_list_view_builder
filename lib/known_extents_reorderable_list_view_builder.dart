@@ -13,6 +13,9 @@ import 'package:flutter/widgets.dart'
     hide ReorderableDelayedDragStartListener, ReorderableDragStartListener;
 import 'package:known_extents_list_view_builder/known_extents_sliver_reorderable_list.dart';
 
+typedef DragStartCallback = void Function(int dragIndex);
+typedef DragCancelCallback = void Function(int dragIndex);
+
 /// A list whose items the user can interactively reorder by dragging.
 ///
 /// This class is appropriate for views with a small number of
@@ -81,6 +84,8 @@ class KnownExtentsReorderableListView extends StatefulWidget {
     Key? key,
     required List<Widget> children,
     required this.onReorder,
+    this.onDragStart,
+    this.onDragReset,
     required this.itemExtents,
     this.overlayScale,
     this.overlayOffset,
@@ -174,6 +179,8 @@ class KnownExtentsReorderableListView extends StatefulWidget {
     required this.itemBuilder,
     required this.itemCount,
     required this.onReorder,
+    this.onDragStart,
+    this.onDragReset,
     required this.itemExtents,
     this.overlayScale,
     this.overlayOffset,
@@ -206,6 +213,9 @@ class KnownExtentsReorderableListView extends StatefulWidget {
 
   /// {@macro flutter.widgets.reorderable_list.onReorder}
   final ReorderCallback onReorder;
+
+  final DragStartCallback? onDragStart;
+  final DragCancelCallback? onDragReset;
 
   /// {@macro flutter.widgets.reorderable_list.proxyDecorator}
   final ReorderItemProxyDecorator? proxyDecorator;
@@ -573,6 +583,8 @@ class _ReorderableListViewState extends State<KnownExtentsReorderableListView> {
               itemBuilder: _itemBuilder,
               itemCount: widget.itemCount,
               onReorder: widget.onReorder,
+              onDragStart: widget.onDragStart,
+              onDragReset: widget.onDragReset,
               proxyDecorator: widget.proxyDecorator ?? _proxyDecorator,
             ),
           ),
