@@ -9,3 +9,7 @@
 ## 1.0.2
 
 * Improves documentation for importing drag listener.
+
+## 1.0.3
+
+* Fixes crash that would occur when reordering an item while scrolled to the bottom of the list.
