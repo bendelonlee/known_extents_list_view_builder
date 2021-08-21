@@ -1,6 +1,6 @@
 name: known_extents_list_view_builder
 description: A modification of Flutter's ListView and ReorderableListView that fixes performance problem for long lists with variable but known item extents.
-version: 1.0.1
+version: 1.0.2
 repository: https://github.com/bendelonlee/known_extents_list_view_builder
 
 environment:
