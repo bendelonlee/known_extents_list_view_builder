@@ -310,7 +310,7 @@ class SliverKnownExtentsReorderableListState
     setState(() {
       if (_insertIndex! < widget.itemCount - 1) {
         // Find the location of the item we want to insert before
-        _finalDropPosition = _itemOffsetAt(_insertIndex!);
+        _finalDropPosition = Offset(widget.overlayOffset.dx, _itemOffsetAt(_insertIndex!).dy);
         if (_insertIndex! > item.index) {
           _finalDropPosition = _finalDropPosition!.translate(
               0.0, -item.itemExtent); //TODO: Make work for horizontal
