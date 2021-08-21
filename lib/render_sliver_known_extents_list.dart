@@ -55,6 +55,12 @@ abstract class RenderSliverKnownExtentsBoxAdaptor
   /// layout offset zero.
   @protected
   double indexToLayoutOffset(List<double> itemHeights, int index) {
+    if (index < 0) {
+      return 0;
+    }
+    if (index >= itemHeights.length) {
+      return itemHeights.last;
+    }
     return itemHeights[index];
   }
 
@@ -172,10 +178,18 @@ abstract class RenderSliverKnownExtentsBoxAdaptor
     assert(remainingExtent >= 0.0);
     final double targetEndScrollOffset = scrollOffset + remainingExtent;
 
-    BoxConstraints childConstraints(int index) => constraints.asBoxConstraints(
-          minExtent: itemExtents[index],
-          maxExtent: itemExtents[index],
+    BoxConstraints childConstraints(int index) {
+      if (index < 0 || index >= itemExtents.length) {
+        return constraints.asBoxConstraints(
+          minExtent: 0.0,
+          maxExtent: 0.0,
         );
+      }
+      return constraints.asBoxConstraints(
+        minExtent: itemExtents[index],
+        maxExtent: itemExtents[index],
+      );
+    }
 
     final int firstIndex =
         getMinChildIndexForScrollOffset(scrollOffset, itemHeights);
