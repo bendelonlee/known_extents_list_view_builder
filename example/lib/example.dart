@@ -192,7 +192,7 @@ class _ExampleListState extends State<ExampleList> {
         onTap: () {
           setState(() {
             animatedIndex = index;
-            isAddingAnimation = true;
+            isAddingAnimation = index % 2 == 0;
           });
         },
         child: Container(

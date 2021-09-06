@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-typedef SliverListBuilder = Widget Function({ValueKey key, int animatedIndex, double animatedExtent});
+typedef SliverListBuilder = Widget Function(
+    {ValueKey key, int animatedIndex, double animatedExtent});
 
 class AnimatedSliverListWrapper extends StatefulWidget {
   AnimatedSliverListWrapper(
@@ -9,9 +10,8 @@ class AnimatedSliverListWrapper extends StatefulWidget {
       required this.isAdding,
       required this.sliverListBuilder,
       required this.itemExtents})
-    : 
-    maxAnimatedExtent = itemExtents[animatedIndex],
-    super(key: key);
+      : maxAnimatedExtent = itemExtents[animatedIndex],
+        super(key: key);
   final int animatedIndex;
   final List<double> itemExtents;
   final bool isAdding;
@@ -22,16 +22,22 @@ class AnimatedSliverListWrapper extends StatefulWidget {
       _AnimatedSliverListWrapperState();
 }
 
-class _AnimatedSliverListWrapperState extends State<AnimatedSliverListWrapper> { 
+class _AnimatedSliverListWrapperState extends State<AnimatedSliverListWrapper> {
   @override
   Widget build(BuildContext context) {
+    double animationStart = widget.isAdding ? 0 : widget.maxAnimatedExtent;
+    double animationEnd = widget.isAdding ? widget.maxAnimatedExtent : 0;
     return TweenAnimationBuilder(
-      curve: Curves.ease,
-        tween: Tween<double>(begin: 0, end: widget.maxAnimatedExtent),
+        curve: Curves.ease,
+        tween: Tween<double>(begin: animationStart, end: animationEnd),
         duration: Duration(milliseconds: 500),
         builder: (BuildContext context, double animatedExtent, Widget? child) {
-          ValueKey sliverListKey = ValueKey("${widget.itemExtents.hashCode}-${widget.animatedIndex}-$animatedExtent");
-          return widget.sliverListBuilder(key: sliverListKey, animatedIndex: widget.animatedIndex, animatedExtent: animatedExtent);
+          ValueKey sliverListKey = ValueKey(
+              "${widget.itemExtents.hashCode}-${widget.animatedIndex}-$animatedExtent");
+          return widget.sliverListBuilder(
+              key: sliverListKey,
+              animatedIndex: widget.animatedIndex,
+              animatedExtent: animatedExtent);
         });
   }
 }
