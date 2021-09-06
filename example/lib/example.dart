@@ -190,13 +190,18 @@ class _ExampleListState extends State<ExampleList> {
       return GestureDetector(
         key: ValueKey(items[index]),
         onTap: () {
-          animatedIndex = index;
-          isAddingAnimation = true;
+          setState(() {
+            animatedIndex = index;
+            isAddingAnimation = true;
+          });
         },
         child: Container(
+          decoration: BoxDecoration(
+            border: Border.all(),
+            color: Colors.blueGrey.shade100,
+          ),
             width: Size.infinite.width,
             height: _itemHeight,
-            color: Colors.blueGrey.shade100,
             child: Center(child: Text(item['text']))),
       );
     } else {
@@ -205,8 +210,7 @@ class _ExampleListState extends State<ExampleList> {
           width: Size.infinite.width,
           key: ValueKey(items[index]),
           child: Center(
-              child:
-                  Text(item['text'], style: TextStyle(color: Colors.white))),
+              child: Text(item['text'], style: TextStyle(color: Colors.white))),
           height: _headerHeight);
     }
   }
@@ -239,6 +243,7 @@ class _ExampleListState extends State<ExampleList> {
 
   _contents() {
     if (widget.useKnownExtents) {
+      print('list built, $animatedIndex');
       return KnownExtentsReorderableListView.builder(
         onReorder: _onReorder,
         itemExtents: makeItemExtents(),

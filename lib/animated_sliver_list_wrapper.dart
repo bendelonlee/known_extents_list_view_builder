@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-typedef SliverListBuilder = Widget Function({int animatedIndex, double animatedExtent});
+typedef SliverListBuilder = Widget Function({ValueKey key, int animatedIndex, double animatedExtent});
 
 class AnimatedSliverListWrapper extends StatefulWidget {
   AnimatedSliverListWrapper(
@@ -27,9 +27,10 @@ class _AnimatedSliverListWrapperState extends State<AnimatedSliverListWrapper> {
   Widget build(BuildContext context) {
     return TweenAnimationBuilder(
         tween: Tween<double>(begin: 0, end: widget.maxAnimatedExtent),
-        duration: Duration(milliseconds: 800),
+        duration: Duration(milliseconds: 8000),
         builder: (BuildContext context, double animatedExtent, Widget? child) {
-          return widget.sliverListBuilder(animatedIndex: widget.animatedIndex, animatedExtent: animatedExtent);
+          ValueKey sliverListKey = ValueKey("${widget.itemExtents.hashCode}-${widget.animatedIndex}-$animatedExtent");
+          return widget.sliverListBuilder(key: sliverListKey, animatedIndex: widget.animatedIndex, animatedExtent: animatedExtent);
         });
   }
 }

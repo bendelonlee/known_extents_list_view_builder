@@ -184,6 +184,7 @@ abstract class RenderSliverKnownExtentsBoxAdaptor
 
   @override
   void performLayout() {
+    print('layout performed, $animatedIndex, $animatedExtent');
     final SliverConstraints constraints = this.constraints;
     childManager.didStartLayout();
     childManager.setDidUnderflow(false);
@@ -202,6 +203,12 @@ abstract class RenderSliverKnownExtentsBoxAdaptor
         return constraints.asBoxConstraints(
           minExtent: 0.0,
           maxExtent: 0.0,
+        );
+      }
+      if (index == animatedIndex) {
+        return constraints.asBoxConstraints(
+          minExtent: animatedExtent!,
+          maxExtent: animatedExtent!,
         );
       }
       return constraints.asBoxConstraints(
@@ -258,12 +265,14 @@ abstract class RenderSliverKnownExtentsBoxAdaptor
         // Reset the scroll offset to offset all items prior and up to the
         // missing item. Let parent re-layout everything.
         geometry = SliverGeometry(
-            scrollOffsetCorrection: indexToLayoutOffset(itemHeights, index, animatedIndex, animatedExtent));
+            scrollOffsetCorrection: indexToLayoutOffset(
+                itemHeights, index, animatedIndex, animatedExtent));
         return;
       }
       final SliverMultiBoxAdaptorParentData childParentData =
           child.parentData! as SliverMultiBoxAdaptorParentData;
-      childParentData.layoutOffset = indexToLayoutOffset(itemHeights, index, animatedIndex, animatedExtent);
+      childParentData.layoutOffset = indexToLayoutOffset(
+          itemHeights, index, animatedIndex, animatedExtent);
       assert(childParentData.index == index);
       trailingChildWithLayout ??= child;
     }
@@ -273,8 +282,8 @@ abstract class RenderSliverKnownExtentsBoxAdaptor
       final SliverMultiBoxAdaptorParentData childParentData =
           firstChild!.parentData! as SliverMultiBoxAdaptorParentData;
 
-      childParentData.layoutOffset =
-          indexToLayoutOffset(itemHeights, firstIndex, animatedIndex, animatedExtent);
+      childParentData.layoutOffset = indexToLayoutOffset(
+          itemHeights, firstIndex, animatedIndex, animatedExtent);
       trailingChildWithLayout = firstChild;
     }
 
@@ -289,7 +298,8 @@ abstract class RenderSliverKnownExtentsBoxAdaptor
             after: trailingChildWithLayout);
         if (child == null) {
           // We have run out of children.
-          estimatedMaxScrollOffset = indexToLayoutOffset(itemHeights, index, animatedIndex, animatedExtent);
+          estimatedMaxScrollOffset = indexToLayoutOffset(
+              itemHeights, index, animatedIndex, animatedExtent);
           break;
         }
       } else {
@@ -299,15 +309,15 @@ abstract class RenderSliverKnownExtentsBoxAdaptor
       final SliverMultiBoxAdaptorParentData childParentData =
           child.parentData! as SliverMultiBoxAdaptorParentData;
       assert(childParentData.index == index);
-      childParentData.layoutOffset =
-          indexToLayoutOffset(itemHeights, childParentData.index!, animatedIndex, animatedExtent);
+      childParentData.layoutOffset = indexToLayoutOffset(
+          itemHeights, childParentData.index!, animatedIndex, animatedExtent);
     }
 
     final int lastIndex = indexOf(lastChild!);
-    final double leadingScrollOffset =
-        indexToLayoutOffset(itemHeights, firstIndex, animatedIndex, animatedExtent);
-    final double trailingScrollOffset =
-        indexToLayoutOffset(itemHeights, lastIndex + 1, animatedIndex, animatedExtent);
+    final double leadingScrollOffset = indexToLayoutOffset(
+        itemHeights, firstIndex, animatedIndex, animatedExtent);
+    final double trailingScrollOffset = indexToLayoutOffset(
+        itemHeights, lastIndex + 1, animatedIndex, animatedExtent);
     assert(firstIndex == 0 ||
         childScrollOffset(firstChild!)! - scrollOffset <=
             precisionErrorTolerance);
@@ -394,8 +404,8 @@ class RenderSliverKnownExtentsList extends RenderSliverKnownExtentsBoxAdaptor {
   RenderSliverKnownExtentsList({
     required RenderSliverBoxChildManager childManager,
     required List<double> itemExtents,
-    int? animatedIndex,
-    double? animatedExtent,
+    this.animatedIndex,
+    this.animatedExtent,
   })  : _itemExtents = itemExtents,
         _itemHeights = _makeHeights(itemExtents),
         super(childManager: childManager);
@@ -404,6 +414,8 @@ class RenderSliverKnownExtentsList extends RenderSliverKnownExtentsBoxAdaptor {
   List<double> get itemHeights => _itemHeights;
   List<double> _itemExtents;
   List<double> _itemHeights;
+  int? animatedIndex;
+  double? animatedExtent;
   set itemExtents(List<double> value) {
     if (_itemExtents == value) return;
     _itemExtents = value;

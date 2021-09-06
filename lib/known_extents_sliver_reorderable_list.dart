@@ -513,8 +513,10 @@ class SliverKnownExtentsReorderableListState
     );
   }
 
-  Widget _sliverList({int? animatedIndex, double? animatedExtent}) {
+  Widget _sliverList({ValueKey? key, int? animatedIndex, double? animatedExtent}) {
+    print('sliver built, $animatedIndex');
     return SliverKnownExtentsList(
+      key: key,
       animatedIndex: animatedIndex,
       animatedExtent: animatedExtent,
       itemExtents: widget.itemExtents,
@@ -533,10 +535,10 @@ class SliverKnownExtentsReorderableListState
     assert(debugCheckHasOverlay(context));
     if (widget.isAdding != null) {
       return AnimatedSliverListWrapper(
-        itemExtents: widget.itemExtents,
-        isAdding: widget.isAdding!,
-        animatedIndex: widget.animatedIndex!,
-        sliverListBuilder: _sliverList);
+          itemExtents: widget.itemExtents,
+          isAdding: widget.isAdding!,
+          animatedIndex: widget.animatedIndex!,
+          sliverListBuilder: _sliverList);
     } else {
       return _sliverList();
     }
