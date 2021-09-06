@@ -529,7 +529,10 @@ class SliverKnownExtentsReorderableListState
   Widget build(BuildContext context) {
     assert(debugCheckHasOverlay(context));
     if (widget.isAdding != null) {
-      return _sliverList();
+      return AnimatedSliverListWrapper(
+        isAdding: widget.isAdding,
+        animatedIndex: widget.animatedIndex,
+        sliverListBuilder: _sliverList);
     } else {
       return _sliverList();
     }
