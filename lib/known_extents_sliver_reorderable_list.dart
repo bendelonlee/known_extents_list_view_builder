@@ -43,10 +43,14 @@ class SliverKnownExtentsReorderableList extends StatefulWidget {
     required this.itemBuilder,
     required this.itemCount,
     required this.onReorder,
+    this.animatedIndex,
+    this.isAdding,
     this.proxyDecorator,
   })  : assert(itemCount >= 0),
         super(key: key);
   final List<double> itemExtents;
+  final int? animatedIndex;
+  final bool? isAdding;
 
   /// {@macro flutter.widgets.reorderable_list.itemBuilder}
   final IndexedWidgetBuilder itemBuilder;
@@ -508,9 +512,7 @@ class SliverKnownExtentsReorderableListState
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    assert(debugCheckHasOverlay(context));
+  Widget _sliverList() {
     return SliverKnownExtentsList(
       itemExtents: widget.itemExtents,
       // When dragging, the dragged item is still in the list but has been replaced
@@ -521,6 +523,16 @@ class SliverKnownExtentsReorderableListState
         childCount: widget.itemCount + (_dragInfo != null ? 1 : 0),
       ),
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    assert(debugCheckHasOverlay(context));
+    if (widget.isAdding != null) {
+      return _sliverList();
+    } else {
+      return _sliverList();
+    }
   }
 }
 

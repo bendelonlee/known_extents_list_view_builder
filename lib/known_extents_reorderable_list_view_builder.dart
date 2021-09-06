@@ -66,6 +66,8 @@ import 'package:known_extents_list_view_builder/known_extents_sliver_reorderable
 ///{@end-tool}
 class KnownExtentsReorderableListView extends StatefulWidget {
   final List<double> itemExtents;
+  final int? animatedIndex;
+  final bool? isAdding;
 
   /// Creates a reorderable list from a pre-built list of widgets.
   ///
@@ -78,6 +80,8 @@ class KnownExtentsReorderableListView extends StatefulWidget {
     required List<Widget> children,
     required this.onReorder,
     required this.itemExtents,
+    this.animatedIndex,
+    this.isAdding,
     this.proxyDecorator,
     this.buildDefaultDragHandles = true,
     this.padding,
@@ -167,6 +171,8 @@ class KnownExtentsReorderableListView extends StatefulWidget {
     required this.itemCount,
     required this.onReorder,
     required this.itemExtents,
+    this.animatedIndex,
+    this.isAdding,
     this.proxyDecorator,
     this.buildDefaultDragHandles = true,
     this.padding,
@@ -326,6 +332,7 @@ class KnownExtentsReorderableListView extends StatefulWidget {
 class _ReorderableListViewState extends State<KnownExtentsReorderableListView> {
   int rebuildCount = 0;
   int? itemExtentsHashCode;
+  int? prevAnimatedIndex;
   Widget _wrapWithSemantics(Widget child, int index) {
     void reorder(int startIndex, int endIndex) {
       if (startIndex != endIndex) widget.onReorder(startIndex, endIndex);
@@ -489,10 +496,12 @@ class _ReorderableListViewState extends State<KnownExtentsReorderableListView> {
 
   @override
   Widget build(BuildContext context) {
-    if (itemExtentsHashCode != widget.itemExtents.hashCode) {
+    if (itemExtentsHashCode != widget.itemExtents.hashCode ||
+        prevAnimatedIndex != widget.animatedIndex) {
       if (itemExtentsHashCode != null) {
         rebuildCount += 1;
       }
+      prevAnimatedIndex = widget.animatedIndex;
       itemExtentsHashCode = widget.itemExtents.hashCode;
     }
     assert(debugCheckHasMaterialLocalizations(context));
@@ -552,6 +561,8 @@ class _ReorderableListViewState extends State<KnownExtentsReorderableListView> {
             sliver: SliverKnownExtentsReorderableList(
               key: ValueKey(rebuildCount),
               itemExtents: widget.itemExtents,
+              animatedIndex: widget.animatedIndex,
+              isAdding: widget.isAdding,
               itemBuilder: _itemBuilder,
               itemCount: widget.itemCount,
               onReorder: widget.onReorder,

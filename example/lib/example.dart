@@ -132,12 +132,13 @@ class _ScrollButtonsState extends State<ScrollButtons> {
                   animate = b;
                 });
               }),
-              Spacer(),
+          Spacer(),
           TextButton(
               onPressed: () {
                 if (animate) {
                   widget.controller.animateTo(double.parse(textController.text),
-                      duration: Duration(milliseconds: 500), curve: Curves.ease);
+                      duration: Duration(milliseconds: 500),
+                      curve: Curves.ease);
                 } else {
                   widget.controller.jumpTo(double.parse(textController.text));
                 }
@@ -176,6 +177,9 @@ class _ExampleListState extends State<ExampleList> {
       (index) => (index % 5 == 0)
           ? {'text': 'header', 'id': index}
           : {'text': "List Item: $index", 'id': index});
+
+  int? animatedIndex;
+  bool? isAddingAnimation;
 
   late ScrollController scrollController;
   final double _itemHeight = 60.0;
@@ -235,6 +239,8 @@ class _ExampleListState extends State<ExampleList> {
         itemCount: items.length,
         scrollController: scrollController,
         itemBuilder: _itemBuilder,
+        animatedIndex: animatedIndex,
+        isAdding: isAddingAnimation,
       );
     } else {
       return ReorderableListView.builder(
