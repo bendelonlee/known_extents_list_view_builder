@@ -514,7 +514,6 @@ class SliverKnownExtentsReorderableListState
   }
 
   Widget _sliverList({ValueKey? key, int? animatedIndex, double? animatedExtent}) {
-    print('sliver built, $animatedIndex');
     return SliverKnownExtentsList(
       key: key,
       animatedIndex: animatedIndex,

@@ -74,16 +74,9 @@ abstract class RenderSliverKnownExtentsBoxAdaptor
       if (index <= animatedIndex) {
         return indexToLayoutOffsetWithoutAnimation(itemHeights, index);
       } else {
-        double result =
-            indexToLayoutOffsetWithoutAnimation(itemHeights, index) -
+        return indexToLayoutOffsetWithoutAnimation(itemHeights, index) -
                 itemExtents[animatedIndex] +
                 animatedExtent!;
-        if (index == 3) {
-          print(
-              "indexToLayoutOffsetWithoutAnimation(itemHeights, index): ${indexToLayoutOffsetWithoutAnimation(itemHeights, index)}");
-          print(result);
-        }
-        return result;
       }
     } else {
       return indexToLayoutOffsetWithoutAnimation(itemHeights, index);
@@ -191,7 +184,6 @@ abstract class RenderSliverKnownExtentsBoxAdaptor
 
   @override
   void performLayout() {
-    print('layout performed, $animatedIndex, $animatedExtent');
     final SliverConstraints constraints = this.constraints;
     childManager.didStartLayout();
     childManager.setDidUnderflow(false);

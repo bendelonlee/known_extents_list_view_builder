@@ -19,7 +19,6 @@ class SliverKnownExtentsList extends SliverMultiBoxAdaptorWidget {
 
   @override
   RenderSliverKnownExtentsList createRenderObject(BuildContext context) {
-    print("rendering: $animatedIndex, $animatedExtent");
     final SliverMultiBoxAdaptorElement element =
         context as SliverMultiBoxAdaptorElement;
     return RenderSliverKnownExtentsList(

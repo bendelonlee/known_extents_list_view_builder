@@ -243,7 +243,6 @@ class _ExampleListState extends State<ExampleList> {
 
   _contents() {
     if (widget.useKnownExtents) {
-      print('list built, $animatedIndex');
       return KnownExtentsReorderableListView.builder(
         onReorder: _onReorder,
         itemExtents: makeItemExtents(),
