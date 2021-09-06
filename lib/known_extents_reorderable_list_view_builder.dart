@@ -13,6 +13,9 @@ import 'package:flutter/widgets.dart'
     hide ReorderableDelayedDragStartListener, ReorderableDragStartListener;
 import 'package:known_extents_list_view_builder/known_extents_sliver_reorderable_list.dart';
 
+typedef DragStartCallback = void Function(int dragIndex);
+typedef DragCancelCallback = void Function(int dragIndex);
+
 /// A list whose items the user can interactively reorder by dragging.
 ///
 /// This class is appropriate for views with a small number of
@@ -68,6 +71,10 @@ class KnownExtentsReorderableListView extends StatefulWidget {
   final List<double> itemExtents;
   final int? animatedIndex;
   final bool? isAdding;
+  final double? overlayScale;
+  final Offset? overlayOffset;
+  final EdgeInsets? overlayMargin;
+  final double? crossAxisExtent;
 
   /// Creates a reorderable list from a pre-built list of widgets.
   ///
@@ -79,9 +86,15 @@ class KnownExtentsReorderableListView extends StatefulWidget {
     Key? key,
     required List<Widget> children,
     required this.onReorder,
+    this.onDragStart,
+    this.onDragReset,
     required this.itemExtents,
     this.animatedIndex,
     this.isAdding,
+    this.overlayScale,
+    this.overlayOffset,
+    this.overlayMargin,
+    this.crossAxisExtent,
     this.proxyDecorator,
     this.buildDefaultDragHandles = true,
     this.padding,
@@ -170,9 +183,15 @@ class KnownExtentsReorderableListView extends StatefulWidget {
     required this.itemBuilder,
     required this.itemCount,
     required this.onReorder,
+    this.onDragStart,
+    this.onDragReset,
     required this.itemExtents,
     this.animatedIndex,
     this.isAdding,
+    this.overlayScale,
+    this.overlayOffset,
+    this.overlayMargin,
+    this.crossAxisExtent,
     this.proxyDecorator,
     this.buildDefaultDragHandles = true,
     this.padding,
@@ -200,6 +219,9 @@ class KnownExtentsReorderableListView extends StatefulWidget {
 
   /// {@macro flutter.widgets.reorderable_list.onReorder}
   final ReorderCallback onReorder;
+
+  final DragStartCallback? onDragStart;
+  final DragCancelCallback? onDragReset;
 
   /// {@macro flutter.widgets.reorderable_list.proxyDecorator}
   final ReorderItemProxyDecorator? proxyDecorator;
@@ -481,17 +503,20 @@ class _ReorderableListViewState extends State<KnownExtentsReorderableListView> {
 
   Widget _proxyDecorator(Widget child, int index, Animation<double> animation) {
     return AnimatedBuilder(
-      animation: animation,
-      builder: (BuildContext context, Widget? child) {
-        final double animValue = Curves.easeInOut.transform(animation.value);
-        final double elevation = lerpDouble(0, 6, animValue)!;
-        return Material(
-          child: child,
-          elevation: elevation,
-        );
-      },
-      child: child,
-    );
+        animation: animation,
+        builder: (BuildContext context, Widget? child) {
+          final double animValue = Curves.easeInOut.transform(animation.value);
+          final double elevation = lerpDouble(0, 6, animValue)!;
+          return Material(
+            child: child,
+            elevation: elevation,
+          );
+        },
+        child: widget.crossAxisExtent != null
+            ? FittedBox(
+                child: SizedBox(width: widget.crossAxisExtent!, child: child),
+              )
+            : child);
   }
 
   @override
@@ -563,9 +588,14 @@ class _ReorderableListViewState extends State<KnownExtentsReorderableListView> {
               itemExtents: widget.itemExtents,
               animatedIndex: widget.animatedIndex,
               isAdding: widget.isAdding,
+              overlayScale: widget.overlayScale ?? 1,
+              overlayOffset: widget.overlayOffset ?? Offset(0, 0),
+              overlayMargin: widget.overlayMargin ?? EdgeInsets.zero,
               itemBuilder: _itemBuilder,
               itemCount: widget.itemCount,
               onReorder: widget.onReorder,
+              onDragStart: widget.onDragStart,
+              onDragReset: widget.onDragReset,
               proxyDecorator: widget.proxyDecorator ?? _proxyDecorator,
             ),
           ),

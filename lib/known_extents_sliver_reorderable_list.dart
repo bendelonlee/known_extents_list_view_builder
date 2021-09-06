@@ -9,6 +9,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:known_extents_list_view_builder/animated_sliver_list_wrapper.dart';
+import 'package:known_extents_list_view_builder/known_extents_reorderable_list_view_builder.dart';
 import 'package:known_extents_list_view_builder/sliver_known_extents_list.dart';
 
 /// A sliver list that allows the user to interactively reorder the list items.
@@ -41,17 +42,25 @@ class SliverKnownExtentsReorderableList extends StatefulWidget {
   const SliverKnownExtentsReorderableList({
     Key? key,
     required this.itemExtents,
+    this.overlayScale = 1,
+    required this.overlayOffset,
+    this.overlayMargin = EdgeInsets.zero,
     required this.itemBuilder,
     required this.itemCount,
     required this.onReorder,
     this.animatedIndex,
     this.isAdding,
+    this.onDragStart,
+    this.onDragReset,
     this.proxyDecorator,
   })  : assert(itemCount >= 0),
         super(key: key);
   final List<double> itemExtents;
   final int? animatedIndex;
   final bool? isAdding;
+  final double overlayScale;
+  final Offset overlayOffset;
+  final EdgeInsets overlayMargin;
 
   /// {@macro flutter.widgets.reorderable_list.itemBuilder}
   final IndexedWidgetBuilder itemBuilder;
@@ -61,6 +70,9 @@ class SliverKnownExtentsReorderableList extends StatefulWidget {
 
   /// {@macro flutter.widgets.reorderable_list.onReorder}
   final ReorderCallback onReorder;
+
+  final DragStartCallback? onDragStart;
+  final DragCancelCallback? onDragReset;
 
   /// {@macro flutter.widgets.reorderable_list.proxyDecorator}
   final ReorderItemProxyDecorator? proxyDecorator;
@@ -254,8 +266,12 @@ class SliverKnownExtentsReorderableListState
     item.rebuild();
 
     _insertIndex = item.index;
+    if (widget.onDragStart != null) widget.onDragStart!(item.index);
     _dragInfo = _DragInfo(
       item: item,
+      overlayScale: widget.overlayScale,
+      overlayOffset: widget.overlayOffset,
+      overlayMargin: widget.overlayMargin,
       initialPosition: position,
       scrollDirection: _scrollDirection,
       onUpdate: _dragUpdate,
@@ -290,6 +306,8 @@ class SliverKnownExtentsReorderableListState
   }
 
   void _dragCancel(_DragInfo item) {
+    widget.onDragReset!(item.index);
+    print('drag canceled in package');
     _dragReset();
   }
 
@@ -297,7 +315,7 @@ class SliverKnownExtentsReorderableListState
     setState(() {
       if (_insertIndex! < widget.itemCount - 1) {
         // Find the location of the item we want to insert before
-        _finalDropPosition = _itemOffsetAt(_insertIndex!);
+        _finalDropPosition = Offset(widget.overlayOffset.dx, _itemOffsetAt(_insertIndex!).dy);
         if (_insertIndex! > item.index) {
           _finalDropPosition = _finalDropPosition!.translate(
               0.0, -item.itemExtent); //TODO: Make work for horizontal
@@ -331,6 +349,7 @@ class SliverKnownExtentsReorderableListState
   void _dragReset() {
     setState(() {
       if (_dragInfo != null) {
+        widget.onDragReset!(_dragInfo!.index);
         if (_dragIndex != null && _items.containsKey(_dragIndex)) {
           final _ReorderableItemState dragItem = _items[_dragIndex!]!;
           dragItem._dragging = false;
@@ -360,7 +379,8 @@ class SliverKnownExtentsReorderableListState
     final double gapExtent = _dragInfo!.itemExtent;
     final double proxyItemStart = _offsetExtent(
         _dragInfo!.dragPosition - _dragInfo!.dragOffset, _scrollDirection);
-    final double proxyItemEnd = proxyItemStart + gapExtent;
+    final double proxyItemEnd =
+        proxyItemStart + gapExtent + widget.overlayMargin.top;
 
     // Find the new index for inserting the item being dragged.
     int newIndex = _insertIndex!;
@@ -368,11 +388,15 @@ class SliverKnownExtentsReorderableListState
     for (final _ReorderableItemState item in _items.values) {
       if (item.index == _dragIndex! || !item.mounted) continue;
 
-      final Rect geometry = item.targetGeometry();
+      final Rect geometry =
+          item.targetGeometry(overlayScale: widget.overlayScale);
       final double itemStart =
-          _scrollDirection == Axis.vertical ? geometry.top : geometry.left;
-      final double itemExtent =
-          _scrollDirection == Axis.vertical ? geometry.height : geometry.width;
+          (_scrollDirection == Axis.vertical ? geometry.top : geometry.left);
+      final double itemExtent = (_scrollDirection == Axis.vertical
+              ? geometry.height
+              : geometry.width) *
+          widget.overlayScale;
+
       final double itemEnd = itemStart + itemExtent;
       final double itemMiddle = itemStart + itemExtent / 2;
 
@@ -419,7 +443,8 @@ class SliverKnownExtentsReorderableListState
       _insertIndex = newIndex;
       for (final _ReorderableItemState item in _items.values) {
         if (item.index == _dragIndex || !item.mounted) continue;
-        item.updateForGap(newIndex - 1, gapExtent, true, _reverse, _dragIndex!);
+        item.updateForGap(newIndex - 1, gapExtent / widget.overlayScale, true,
+            _reverse, _dragIndex!);
       }
     }
   }
@@ -437,8 +462,9 @@ class SliverKnownExtentsReorderableListState
           _dragInfo!.scrollable!.context.findRenderObject()! as RenderBox;
       final Offset scrollOrigin = scrollRenderBox.localToGlobal(Offset.zero);
       final double scrollStart = _offsetExtent(scrollOrigin, _scrollDirection);
-      final double scrollEnd =
-          scrollStart + _sizeExtent(scrollRenderBox.size, _scrollDirection);
+      final double scrollEnd = scrollStart +
+          _sizeExtent(scrollRenderBox.size, _scrollDirection) *
+              widget.overlayScale;
 
       final double proxyStart = _offsetExtent(
           _dragInfo!.dragPosition - _dragInfo!.dragOffset, _scrollDirection);
@@ -689,11 +715,11 @@ class _ReorderableItemState extends State<_ReorderableItem> {
     rebuild();
   }
 
-  Rect targetGeometry() {
+  Rect targetGeometry({double overlayScale = 1}) {
     final RenderBox itemRenderBox = context.findRenderObject()! as RenderBox;
-    final Offset itemPosition =
-        itemRenderBox.localToGlobal(Offset.zero) + _targetOffset;
-    return itemPosition & itemRenderBox.size;
+    final Offset itemPosition = itemRenderBox.localToGlobal(Offset.zero) +
+        Offset(0, _targetOffset.dy * overlayScale);
+    return itemPosition & (itemRenderBox.size);
   }
 
   void rebuild() {
@@ -815,6 +841,9 @@ class _DragInfo extends Drag {
     this.onDropCompleted,
     this.proxyDecorator,
     required this.tickerProvider,
+    required this.overlayScale,
+    required this.overlayOffset,
+    required this.overlayMargin,
   }) {
     final RenderBox itemRenderBox =
         item.context.findRenderObject()! as RenderBox;
@@ -823,9 +852,10 @@ class _DragInfo extends Drag {
     child = item.widget.child;
     capturedThemes = item.widget.capturedThemes;
     dragPosition = initialPosition;
-    dragOffset = itemRenderBox.globalToLocal(initialPosition);
+    dragOffset = itemRenderBox.globalToLocal(initialPosition) * overlayScale;
     itemSize = item.context.size!;
-    itemExtent = _sizeExtent(itemSize, scrollDirection);
+    itemExtentUnscaled = _sizeExtent(itemSize, scrollDirection);
+    itemExtent = _sizeExtent(itemSize, scrollDirection) * overlayScale;
     scrollable = Scrollable.of(item.context);
   }
 
@@ -836,6 +866,9 @@ class _DragInfo extends Drag {
   final VoidCallback? onDropCompleted;
   final ReorderItemProxyDecorator? proxyDecorator;
   final TickerProvider tickerProvider;
+  final double overlayScale;
+  final Offset overlayOffset;
+  final EdgeInsets overlayMargin;
 
   late SliverKnownExtentsReorderableListState listState;
   late int index;
@@ -844,6 +877,7 @@ class _DragInfo extends Drag {
   late Offset dragOffset;
   late Size itemSize;
   late double itemExtent;
+  late double itemExtentUnscaled;
   late CapturedThemes capturedThemes;
   ScrollableState? scrollable;
   AnimationController? _proxyAnimation;
@@ -897,9 +931,16 @@ class _DragInfo extends Drag {
         listState: listState,
         index: index,
         child: child,
-        size: itemSize,
+        size: Size(
+            itemSize.width * overlayScale +
+                overlayMargin.left +
+                overlayMargin.right,
+            itemSize.height * overlayScale +
+                overlayMargin.top +
+                overlayMargin.bottom),
         animation: _proxyAnimation!,
-        position: dragPosition - dragOffset - _overlayOrigin(context),
+        position: Offset(overlayOffset.dx,
+            (dragPosition - dragOffset).dy - overlayMargin.top),
         proxyDecorator: proxyDecorator,
       ),
     );
