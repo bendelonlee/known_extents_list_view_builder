@@ -74,9 +74,16 @@ abstract class RenderSliverKnownExtentsBoxAdaptor
       if (index <= animatedIndex) {
         return indexToLayoutOffsetWithoutAnimation(itemHeights, index);
       } else {
-        return indexToLayoutOffsetWithoutAnimation(itemHeights, index) -
-            itemHeights[animatedIndex] +
-            animatedExtent!;
+        double result =
+            indexToLayoutOffsetWithoutAnimation(itemHeights, index) -
+                itemExtents[animatedIndex] +
+                animatedExtent!;
+        if (index == 3) {
+          print(
+              "indexToLayoutOffsetWithoutAnimation(itemHeights, index): ${indexToLayoutOffsetWithoutAnimation(itemHeights, index)}");
+          print(result);
+        }
+        return result;
       }
     } else {
       return indexToLayoutOffsetWithoutAnimation(itemHeights, index);

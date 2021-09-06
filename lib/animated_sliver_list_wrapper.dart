@@ -27,7 +27,7 @@ class _AnimatedSliverListWrapperState extends State<AnimatedSliverListWrapper> {
   Widget build(BuildContext context) {
     return TweenAnimationBuilder(
         tween: Tween<double>(begin: 0, end: widget.maxAnimatedExtent),
-        duration: Duration(milliseconds: 8000),
+        duration: Duration(milliseconds: 500),
         builder: (BuildContext context, double animatedExtent, Widget? child) {
           ValueKey sliverListKey = ValueKey("${widget.itemExtents.hashCode}-${widget.animatedIndex}-$animatedExtent");
           return widget.sliverListBuilder(key: sliverListKey, animatedIndex: widget.animatedIndex, animatedExtent: animatedExtent);
