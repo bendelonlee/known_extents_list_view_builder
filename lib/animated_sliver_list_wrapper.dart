@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-typedef SliverListBuilder = Widget Function({required int animatedIndex, required double animatedExtent});
+typedef SliverListBuilder = Widget Function({int animatedIndex, double animatedExtent});
 
 class AnimatedSliverListWrapper extends StatefulWidget {
   AnimatedSliverListWrapper(

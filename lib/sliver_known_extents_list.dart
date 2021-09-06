@@ -6,19 +6,26 @@ class SliverKnownExtentsList extends SliverMultiBoxAdaptorWidget {
   /// in a linear array.
   const SliverKnownExtentsList({
     Key? key,
+    this.animatedIndex,
+    this.animatedExtent,
     required SliverChildDelegate delegate,
     required this.itemExtents,
   }) : super(key: key, delegate: delegate);
 
   /// The extent the children are forced to have in the main axis.
   final List<double> itemExtents;
+  final int? animatedIndex;
+  final double? animatedExtent;
 
   @override
   RenderSliverKnownExtentsList createRenderObject(BuildContext context) {
     final SliverMultiBoxAdaptorElement element =
         context as SliverMultiBoxAdaptorElement;
     return RenderSliverKnownExtentsList(
-        childManager: element, itemExtents: itemExtents);
+        animatedIndex: animatedIndex,
+        animatedExtent: animatedExtent,
+        childManager: element,
+        itemExtents: itemExtents);
   }
 
   @override

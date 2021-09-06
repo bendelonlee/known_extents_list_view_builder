@@ -45,6 +45,8 @@ abstract class RenderSliverKnownExtentsBoxAdaptor
   /// The main-axis extent of each item.
   List<double> get itemExtents;
   List<double> get itemHeights;
+  int? animatedIndex;
+  double? animatedExtent;
 
   /// The layout offset for the child with the given index.
   ///
@@ -54,7 +56,8 @@ abstract class RenderSliverKnownExtentsBoxAdaptor
   /// By default, places the children in order, without gaps, starting from
   /// layout offset zero.
   @protected
-  double indexToLayoutOffset(List<double> itemHeights, int index) {
+  double indexToLayoutOffsetWithoutAnimation(
+      List<double> itemHeights, int index) {
     if (index < 0) {
       return 0;
     }
@@ -62,6 +65,22 @@ abstract class RenderSliverKnownExtentsBoxAdaptor
       return itemHeights.last;
     }
     return itemHeights[index];
+  }
+
+  @protected
+  double indexToLayoutOffset(List<double> itemHeights, int index,
+      int? animatedIndex, double? animatedExtent) {
+    if (animatedIndex != null) {
+      if (index <= animatedIndex) {
+        return indexToLayoutOffsetWithoutAnimation(itemHeights, index);
+      } else {
+        return indexToLayoutOffsetWithoutAnimation(itemHeights, index) -
+            itemHeights[animatedIndex] +
+            animatedExtent!;
+      }
+    } else {
+      return indexToLayoutOffsetWithoutAnimation(itemHeights, index);
+    }
   }
 
   /// The minimum child index that is visible at the given scroll offset.
@@ -211,7 +230,8 @@ abstract class RenderSliverKnownExtentsBoxAdaptor
     if (firstChild == null) {
       if (!addInitialChild(
           index: firstIndex,
-          layoutOffset: indexToLayoutOffset(itemHeights, firstIndex))) {
+          layoutOffset: indexToLayoutOffset(
+              itemHeights, firstIndex, animatedIndex, animatedExtent))) {
         // There are either no children, or we are past the end of all our children.
         final double max;
         if (firstIndex <= 0) {
@@ -238,12 +258,12 @@ abstract class RenderSliverKnownExtentsBoxAdaptor
         // Reset the scroll offset to offset all items prior and up to the
         // missing item. Let parent re-layout everything.
         geometry = SliverGeometry(
-            scrollOffsetCorrection: indexToLayoutOffset(itemHeights, index));
+            scrollOffsetCorrection: indexToLayoutOffset(itemHeights, index, animatedIndex, animatedExtent));
         return;
       }
       final SliverMultiBoxAdaptorParentData childParentData =
           child.parentData! as SliverMultiBoxAdaptorParentData;
-      childParentData.layoutOffset = indexToLayoutOffset(itemHeights, index);
+      childParentData.layoutOffset = indexToLayoutOffset(itemHeights, index, animatedIndex, animatedExtent);
       assert(childParentData.index == index);
       trailingChildWithLayout ??= child;
     }
@@ -254,7 +274,7 @@ abstract class RenderSliverKnownExtentsBoxAdaptor
           firstChild!.parentData! as SliverMultiBoxAdaptorParentData;
 
       childParentData.layoutOffset =
-          indexToLayoutOffset(itemHeights, firstIndex);
+          indexToLayoutOffset(itemHeights, firstIndex, animatedIndex, animatedExtent);
       trailingChildWithLayout = firstChild;
     }
 
@@ -269,7 +289,7 @@ abstract class RenderSliverKnownExtentsBoxAdaptor
             after: trailingChildWithLayout);
         if (child == null) {
           // We have run out of children.
-          estimatedMaxScrollOffset = indexToLayoutOffset(itemHeights, index);
+          estimatedMaxScrollOffset = indexToLayoutOffset(itemHeights, index, animatedIndex, animatedExtent);
           break;
         }
       } else {
@@ -280,14 +300,14 @@ abstract class RenderSliverKnownExtentsBoxAdaptor
           child.parentData! as SliverMultiBoxAdaptorParentData;
       assert(childParentData.index == index);
       childParentData.layoutOffset =
-          indexToLayoutOffset(itemHeights, childParentData.index!);
+          indexToLayoutOffset(itemHeights, childParentData.index!, animatedIndex, animatedExtent);
     }
 
     final int lastIndex = indexOf(lastChild!);
     final double leadingScrollOffset =
-        indexToLayoutOffset(itemHeights, firstIndex);
+        indexToLayoutOffset(itemHeights, firstIndex, animatedIndex, animatedExtent);
     final double trailingScrollOffset =
-        indexToLayoutOffset(itemHeights, lastIndex + 1);
+        indexToLayoutOffset(itemHeights, lastIndex + 1, animatedIndex, animatedExtent);
     assert(firstIndex == 0 ||
         childScrollOffset(firstChild!)! - scrollOffset <=
             precisionErrorTolerance);
@@ -374,6 +394,8 @@ class RenderSliverKnownExtentsList extends RenderSliverKnownExtentsBoxAdaptor {
   RenderSliverKnownExtentsList({
     required RenderSliverBoxChildManager childManager,
     required List<double> itemExtents,
+    int? animatedIndex,
+    double? animatedExtent,
   })  : _itemExtents = itemExtents,
         _itemHeights = _makeHeights(itemExtents),
         super(childManager: childManager);

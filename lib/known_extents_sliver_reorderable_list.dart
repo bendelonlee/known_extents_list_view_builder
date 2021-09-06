@@ -8,6 +8,7 @@ import 'dart:math';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
+import 'package:known_extents_list_view_builder/animated_sliver_list_wrapper.dart';
 import 'package:known_extents_list_view_builder/sliver_known_extents_list.dart';
 
 /// A sliver list that allows the user to interactively reorder the list items.
@@ -512,8 +513,10 @@ class SliverKnownExtentsReorderableListState
     );
   }
 
-  Widget _sliverList() {
+  Widget _sliverList({int? animatedIndex, double? animatedExtent}) {
     return SliverKnownExtentsList(
+      animatedIndex: animatedIndex,
+      animatedExtent: animatedExtent,
       itemExtents: widget.itemExtents,
       // When dragging, the dragged item is still in the list but has been replaced
       // by a zero height SizedBox, so that the gap can move around. To make the
@@ -530,8 +533,9 @@ class SliverKnownExtentsReorderableListState
     assert(debugCheckHasOverlay(context));
     if (widget.isAdding != null) {
       return AnimatedSliverListWrapper(
-        isAdding: widget.isAdding,
-        animatedIndex: widget.animatedIndex,
+        itemExtents: widget.itemExtents,
+        isAdding: widget.isAdding!,
+        animatedIndex: widget.animatedIndex!,
         sliverListBuilder: _sliverList);
     } else {
       return _sliverList();

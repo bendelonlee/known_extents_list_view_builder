@@ -187,19 +187,26 @@ class _ExampleListState extends State<ExampleList> {
   Widget _itemBuilder(_, index) {
     final item = items[index];
     if (item['text'] != 'header') {
-      return Container(
-          width: Size.infinite.width,
-          height: _itemHeight,
-          key: ValueKey(items[index]),
-          color: Colors.blueGrey.shade100,
-          child: Center(child: Text(item['text'])));
+      return GestureDetector(
+        key: ValueKey(items[index]),
+        onTap: () {
+          animatedIndex = index;
+          isAddingAnimation = true;
+        },
+        child: Container(
+            width: Size.infinite.width,
+            height: _itemHeight,
+            color: Colors.blueGrey.shade100,
+            child: Center(child: Text(item['text']))),
+      );
     } else {
       return Container(
           color: Colors.blueGrey.shade900,
           width: Size.infinite.width,
           key: ValueKey(items[index]),
           child: Center(
-              child: Text(item['text'], style: TextStyle(color: Colors.white))),
+              child:
+                  Text(item['text'], style: TextStyle(color: Colors.white))),
           height: _headerHeight);
     }
   }
