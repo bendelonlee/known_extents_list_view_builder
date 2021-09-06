@@ -26,6 +26,7 @@ class _AnimatedSliverListWrapperState extends State<AnimatedSliverListWrapper> {
   @override
   Widget build(BuildContext context) {
     return TweenAnimationBuilder(
+      curve: Curves.ease,
         tween: Tween<double>(begin: 0, end: widget.maxAnimatedExtent),
         duration: Duration(milliseconds: 500),
         builder: (BuildContext context, double animatedExtent, Widget? child) {
