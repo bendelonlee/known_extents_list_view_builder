@@ -349,7 +349,9 @@ class SliverKnownExtentsReorderableListState
   void _dragReset() {
     setState(() {
       if (_dragInfo != null) {
-        widget.onDragReset!(_dragInfo!.index);
+        if(widget.onDragReset != null){
+          widget.onDragReset!(_dragInfo!.index);
+        }
         if (_dragIndex != null && _items.containsKey(_dragIndex)) {
           final _ReorderableItemState dragItem = _items[_dragIndex!]!;
           dragItem._dragging = false;
