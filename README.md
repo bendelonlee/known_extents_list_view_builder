@@ -18,6 +18,10 @@ import 'package:known_extents_list_view_builder/known_extents_reorderable_list_v
 import 'package:known_extents_list_view_builder/known_extents_sliver_reorderable_list.dart' show ReorderableDragStartListener;
 ```
 
+## Branches
+
+If your use case requires more functionality on top of this, I may have a fix you're welcome to use in a branch. [Read this for more info](https://github.com/bendelonlee/known_extents_list_view_builder/blob/master/BRANCHES.md)
+
 ## Disclaimer
 This is not official Flutter package, nor is it put out by the Flutter team. Maintainance and edges cases are not guaranteed.
 
