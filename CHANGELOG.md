@@ -13,3 +13,7 @@
 ## 1.0.3
 
 * Fixes crash that would occur when reordering an item while scrolled to the bottom of the list.
+
+## 1.1.0
+
+* Adds support for latest flutter release (2.5) by removing type argument from MultiDragGestureRecognizer.
