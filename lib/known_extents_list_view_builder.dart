@@ -55,6 +55,7 @@ class KnownExtentsListView extends BoxScrollView {
   @override
   Widget buildChildLayout(BuildContext context) {
     return SliverKnownExtentsList(
+      key: ValueKey(itemExtents.hashCode),
       delegate: childrenDelegate,
       itemExtents: itemExtents,
     );
