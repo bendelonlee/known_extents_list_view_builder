@@ -9,8 +9,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart'
     hide ReorderableDelayedDragStartListener, ReorderableDragStartListener;
 import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart'
-    hide ReorderableDelayedDragStartListener, ReorderableDragStartListener;
 import 'package:known_extents_list_view_builder/known_extents_sliver_reorderable_list.dart';
 
 /// A list whose items the user can interactively reorder by dragging.
@@ -78,6 +76,10 @@ class KnownExtentsReorderableListView extends StatefulWidget {
     required List<Widget> children,
     required this.onReorder,
     required this.itemExtents,
+    this.onReorderStart,
+    this.onReorderEnd,
+    this.onDragStart,
+    this.onDragEnd,
     this.proxyDecorator,
     this.buildDefaultDragHandles = true,
     this.padding,
@@ -167,6 +169,10 @@ class KnownExtentsReorderableListView extends StatefulWidget {
     required this.itemCount,
     required this.onReorder,
     required this.itemExtents,
+    this.onReorderStart,
+    this.onReorderEnd,
+    this.onDragStart,
+    this.onDragEnd,
     this.proxyDecorator,
     this.buildDefaultDragHandles = true,
     this.padding,
@@ -194,6 +200,18 @@ class KnownExtentsReorderableListView extends StatefulWidget {
 
   /// {@macro flutter.widgets.reorderable_list.onReorder}
   final ReorderCallback onReorder;
+
+  /// Used for [ReorderableDragStartListener] and [ReorderableDelayedDragStartListener]
+  final void Function(PointerDownEvent event)? onDragStart;
+
+  /// Used for [ReorderableDragStartListener] and [ReorderableDelayedDragStartListener]
+  final void Function(PointerUpEvent event)? onDragEnd;
+
+  /// {@macro flutter.widgets.reorderable_list.onReorderStart}
+  final void Function(int index)? onReorderStart;
+
+  /// {@macro flutter.widgets.reorderable_list.onReorderStart}
+  final void Function(int index)? onReorderEnd;
 
   /// {@macro flutter.widgets.reorderable_list.proxyDecorator}
   final ReorderItemProxyDecorator? proxyDecorator;
@@ -404,8 +422,7 @@ class _ReorderableListViewState extends State<KnownExtentsReorderableListView> {
     // TODO(goderbauer): The semantics stuff should probably happen inside
     //   _ReorderableItem so the widget versions can have them as well.
     final Widget itemWithSemantics = _wrapWithSemantics(item, index);
-    final Key itemGlobalKey =
-        _ReorderableListViewChildGlobalKey(item.key!, this);
+    final Key itemGlobalKey = _ReorderableListViewChildGlobalKey(index);
 
     if (widget.buildDefaultDragHandles) {
       switch (Theme.of(context).platform) {
@@ -428,6 +445,8 @@ class _ReorderableListViewState extends State<KnownExtentsReorderableListView> {
                       alignment: AlignmentDirectional.bottomCenter,
                       child: ReorderableDragStartListener(
                         index: index,
+                        onDragStart: widget.onDragStart,
+                        onDragEnd: widget.onDragEnd,
                         child: const Icon(Icons.drag_handle),
                       ),
                     ),
@@ -448,6 +467,8 @@ class _ReorderableListViewState extends State<KnownExtentsReorderableListView> {
                       alignment: AlignmentDirectional.centerEnd,
                       child: ReorderableDragStartListener(
                         index: index,
+                        onDragStart: widget.onDragStart,
+                        onDragEnd: widget.onDragEnd,
                         child: const Icon(Icons.drag_handle),
                       ),
                     ),
@@ -461,6 +482,8 @@ class _ReorderableListViewState extends State<KnownExtentsReorderableListView> {
           return ReorderableDelayedDragStartListener(
             key: itemGlobalKey,
             index: index,
+            onDragStart: widget.onDragStart,
+            onDragEnd: widget.onDragEnd,
             child: itemWithSemantics,
           );
       }
@@ -556,6 +579,8 @@ class _ReorderableListViewState extends State<KnownExtentsReorderableListView> {
               itemCount: widget.itemCount,
               onReorder: widget.onReorder,
               proxyDecorator: widget.proxyDecorator ?? _proxyDecorator,
+              onReorderStart: widget.onReorderStart,
+              onReorderEnd: widget.onReorderEnd,
             ),
           ),
         ],
@@ -569,22 +594,17 @@ class _ReorderableListViewState extends State<KnownExtentsReorderableListView> {
 //
 // The difference with GlobalObjectKey is that it uses [==] instead of [identical]
 // of the objects used to generate widgets.
-@optionalTypeArgs
 class _ReorderableListViewChildGlobalKey extends GlobalObjectKey {
-  const _ReorderableListViewChildGlobalKey(this.subKey, this.state)
-      : super(subKey);
+  const _ReorderableListViewChildGlobalKey(this.index) : super(index);
 
-  final Key subKey;
-  final State state;
+  final int index;
 
   @override
   bool operator ==(Object other) {
     if (other.runtimeType != runtimeType) return false;
-    return other is _ReorderableListViewChildGlobalKey &&
-        other.subKey == subKey &&
-        other.state == state;
+    return other is _ReorderableListViewChildGlobalKey && other.index == index;
   }
 
   @override
-  int get hashCode => hashValues(subKey, state);
+  int get hashCode => index.hashCode;
 }
