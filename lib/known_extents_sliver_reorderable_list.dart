@@ -6,7 +6,6 @@
 import 'dart:math';
 
 import 'package:flutter/gestures.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:known_extents_list_view_builder/sliver_known_extents_list.dart';
 
@@ -43,6 +42,8 @@ class SliverKnownExtentsReorderableList extends StatefulWidget {
     required this.itemBuilder,
     required this.itemCount,
     required this.onReorder,
+    this.onReorderStart,
+    this.onReorderEnd,
     this.proxyDecorator,
   })  : assert(itemCount >= 0),
         super(key: key);
@@ -56,6 +57,12 @@ class SliverKnownExtentsReorderableList extends StatefulWidget {
 
   /// {@macro flutter.widgets.reorderable_list.onReorder}
   final ReorderCallback onReorder;
+
+  /// {@macro flutter.widgets.reorderable_list.onReorderStart}
+  final void Function(int index)? onReorderStart;
+
+  /// {@macro flutter.widgets.reorderable_list.onReorderEnd}
+  final void Function(int index)? onReorderEnd;
 
   /// {@macro flutter.widgets.reorderable_list.proxyDecorator}
   final ReorderItemProxyDecorator? proxyDecorator;
@@ -163,7 +170,7 @@ class SliverKnownExtentsReorderableListState
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _scrollable = Scrollable.of(context)!;
+    _scrollable = Scrollable.of(context);
   }
 
   @override
@@ -244,7 +251,8 @@ class SliverKnownExtentsReorderableListState
 
   Drag? _dragStart(Offset position) {
     assert(_dragInfo == null);
-    final _ReorderableItemState item = _items[_dragIndex!]!;
+    if (_items[_dragIndex] == null) return null;
+    final _ReorderableItemState item = _items[_dragIndex]!;
     item.dragging = true;
     item.rebuild();
 
@@ -261,8 +269,9 @@ class SliverKnownExtentsReorderableListState
       tickerProvider: this,
     );
     _dragInfo!.startDrag();
+    if (widget.onReorderStart != null) widget.onReorderStart!(_dragIndex!);
 
-    final OverlayState overlay = Overlay.of(context)!;
+    final OverlayState overlay = Overlay.of(context);
     assert(_overlayEntry == null);
     _overlayEntry = OverlayEntry(builder: _dragInfo!.createProxy);
     overlay.insert(_overlayEntry!);
@@ -276,7 +285,7 @@ class SliverKnownExtentsReorderableListState
     return _dragInfo;
   }
 
-  void _dragUpdate(_DragInfo item, Offset position, Offset delta) {
+  void _dragUpdate(_DragInfo item, Offset position, Offset delta, int index) {
     setState(() {
       _overlayEntry?.markNeedsBuild();
       _dragUpdateItems();
@@ -311,6 +320,7 @@ class SliverKnownExtentsReorderableListState
               _extentOffset(item.itemExtent, _scrollDirection);
         }
       }
+      if (widget.onReorderEnd != null) widget.onReorderEnd!(_dragIndex!);
     });
   }
 
@@ -498,7 +508,7 @@ class SliverKnownExtentsReorderableListState
     }
     final Widget child = widget.itemBuilder(context, index);
     assert(child.key != null, 'All list items must have a key');
-    final OverlayState overlay = Overlay.of(context)!;
+    final OverlayState overlay = Overlay.of(context);
     return _ReorderableItem(
       key: _ReorderableItemGlobalKey(child.key!, index, this),
       index: index,
@@ -707,6 +717,8 @@ class ReorderableDragStartListener extends StatelessWidget {
     Key? key,
     required this.child,
     required this.index,
+    required this.onDragStart,
+    required this.onDragEnd,
   }) : super(key: key);
 
   /// The widget for which the application would like to respond to a tap and
@@ -716,11 +728,21 @@ class ReorderableDragStartListener extends StatelessWidget {
   /// The index of the associated item that will be dragged in the list.
   final int index;
 
+  /// Used for [ReorderableDragStartListener] and [ReorderableDelayedDragStartListener]
+  final void Function(PointerDownEvent event)? onDragStart;
+
+  /// Used for [ReorderableDragStartListener] and [ReorderableDelayedDragStartListener]
+  final void Function(PointerUpEvent event)? onDragEnd;
+
   @override
   Widget build(BuildContext context) {
     return Listener(
       onPointerDown: (PointerDownEvent event) {
         _startDragging(context, event);
+        if (onDragStart != null) onDragStart!(event);
+      },
+      onPointerUp: (event) {
+        if (onDragEnd != null) onDragEnd!(event);
       },
       child: child,
     );
@@ -772,7 +794,18 @@ class ReorderableDelayedDragStartListener extends ReorderableDragStartListener {
     Key? key,
     required Widget child,
     required int index,
-  }) : super(key: key, child: child, index: index);
+
+    /// {@macro flutter.widgets.reorderable_list.onReorderStart}
+    required void Function(PointerDownEvent event)? onDragStart,
+
+    /// {@macro flutter.widgets.reorderable_list.onReorderEnd}
+    required void Function(PointerUpEvent event)? onDragEnd,
+  }) : super(
+            key: key,
+            child: child,
+            index: index,
+            onDragStart: onDragStart,
+            onDragEnd: onDragEnd);
 
   @override
   MultiDragGestureRecognizer createRecognizer() {
@@ -781,7 +814,7 @@ class ReorderableDelayedDragStartListener extends ReorderableDragStartListener {
 }
 
 typedef _DragItemUpdate = void Function(
-    _DragInfo item, Offset position, Offset delta);
+    _DragInfo item, Offset position, Offset delta, int index);
 typedef _DragItemCallback = void Function(_DragInfo item);
 
 class _DragInfo extends Drag {
@@ -849,7 +882,7 @@ class _DragInfo extends Drag {
   void update(DragUpdateDetails details) {
     final Offset delta = _restrictAxis(details.delta, scrollDirection);
     dragPosition += delta;
-    onUpdate?.call(this, dragPosition, details.delta);
+    onUpdate?.call(this, dragPosition, details.delta, index);
   }
 
   @override
@@ -876,18 +909,18 @@ class _DragInfo extends Drag {
       _DragItemProxy(
         listState: listState,
         index: index,
-        child: child,
         size: itemSize,
         animation: _proxyAnimation!,
         position: dragPosition - dragOffset - _overlayOrigin(context),
         proxyDecorator: proxyDecorator,
+        child: child,
       ),
     );
   }
 }
 
 Offset _overlayOrigin(BuildContext context) {
-  final OverlayState overlay = Overlay.of(context)!;
+  final OverlayState overlay = Overlay.of(context);
   final RenderBox overlayBox = overlay.context.findRenderObject()! as RenderBox;
   return overlayBox.localToGlobal(Offset.zero);
 }
@@ -928,13 +961,13 @@ class _DragItemProxy extends StatelessWidget {
               effectivePosition, Curves.easeOut.transform(animation.value))!;
         }
         return Positioned(
+          left: effectivePosition.dx,
+          top: effectivePosition.dy,
           child: SizedBox(
             width: size.width,
             height: size.height,
             child: child,
           ),
-          left: effectivePosition.dx,
-          top: effectivePosition.dy,
         );
       },
       child: proxyChild,
