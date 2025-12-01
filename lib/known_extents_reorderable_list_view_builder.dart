@@ -9,8 +9,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart'
     hide ReorderableDelayedDragStartListener, ReorderableDragStartListener;
 import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart'
-    hide ReorderableDelayedDragStartListener, ReorderableDragStartListener;
 import 'package:known_extents_list_view_builder/known_extents_sliver_reorderable_list.dart';
 
 /// A list whose items the user can interactively reorder by dragging.
@@ -343,8 +341,8 @@ class _ReorderableListViewState extends State<KnownExtentsReorderableListView> {
     // before index+2, which is after the space at index+1.
     void moveAfter() => reorder(index, index + 2);
 
-    final MaterialLocalizations localizations =
-        MaterialLocalizations.of(context);
+    final WidgetsLocalizations localizations =
+        WidgetsLocalizations.of(context);
 
     // If the item can move to before its current position in the list.
     if (index > 0) {
@@ -586,5 +584,5 @@ class _ReorderableListViewChildGlobalKey extends GlobalObjectKey {
   }
 
   @override
-  int get hashCode => hashValues(subKey, state);
+  int get hashCode => Object.hash(subKey, state);
 }
