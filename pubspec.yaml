@@ -4,7 +4,7 @@ version: 1.2.0
 repository: https://github.com/bendelonlee/known_extents_list_view_builder
 
 environment:
-  sdk: ">=3.5.0 <4.0.0"
+  sdk: ">=3.10.0 <4.0.0"
 
 dependencies:
   flutter:
