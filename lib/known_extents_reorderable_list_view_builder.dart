@@ -92,6 +92,7 @@ class KnownExtentsReorderableListView extends StatefulWidget {
     this.keyboardDismissBehavior = ScrollViewKeyboardDismissBehavior.manual,
     this.restorationId,
     this.clipBehavior = Clip.hardEdge,
+    this.mergeSemantics = true,
   })  : assert(
           children.every((Widget w) => w.key != null),
           'All children of this widget must have a key.',
@@ -181,6 +182,7 @@ class KnownExtentsReorderableListView extends StatefulWidget {
     this.keyboardDismissBehavior = ScrollViewKeyboardDismissBehavior.manual,
     this.restorationId,
     this.clipBehavior = Clip.hardEdge,
+    this.mergeSemantics = true,
   })  : assert(itemCount >= 0),
         super(key: key);
 
@@ -317,6 +319,14 @@ class KnownExtentsReorderableListView extends StatefulWidget {
   /// Defaults to [Clip.hardEdge].
   final Clip clipBehavior;
 
+  /// Whether to merge the semantics of the list items.
+  ///
+  /// When true (the default), each list item's semantics will be wrapped
+  /// with [MergeSemantics]. When false, the [MergeSemantics] wrapper is omitted.
+  ///
+  /// Defaults to true.
+  final bool mergeSemantics;
+
   @override
   _ReorderableListViewState createState() => _ReorderableListViewState();
 }
@@ -380,12 +390,17 @@ class _ReorderableListViewState extends State<KnownExtentsReorderableListView> {
     //
     // We also apply the relevant custom accessibility actions for moving the item
     // up, down, to the start, and to the end of the list.
-    return MergeSemantics(
-      child: Semantics(
-        customSemanticsActions: semanticsActions,
-        child: child,
-      ),
+    final Widget semanticsChild = Semantics(
+      customSemanticsActions: semanticsActions,
+      child: child,
     );
+
+    if (widget.mergeSemantics) {
+      return MergeSemantics(
+        child: semanticsChild,
+      );
+    }
+    return semanticsChild;
   }
 
   Widget _itemBuilder(BuildContext context, int index) {
