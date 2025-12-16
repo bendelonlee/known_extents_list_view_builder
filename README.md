@@ -1,5 +1,11 @@
 # known_extents_list_view_builder
 
+## DEPRECATED
+
+The need for this package has been deprecated by the advancement of the core flutter API. Specifically, this commit: https://github.com/flutter/flutter/commit/a9fac73361d3a86fa9dc7921e773f1aa0d0cae71
+
+There is now no reason to use this package, as what this package was designed to achieve can now be achieved with core flutter widgets.
+
 ## See the difference
 Watch [this video](https://vimeo.com/582598514) taken in release mode.
 
