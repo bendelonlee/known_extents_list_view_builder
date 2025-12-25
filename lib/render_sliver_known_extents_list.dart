@@ -385,6 +385,7 @@ class RenderSliverKnownExtentsList extends RenderSliverKnownExtentsBoxAdaptor {
   set itemExtents(List<double> value) {
     if (_itemExtents == value) return;
     _itemExtents = value;
+    _itemHeights = _makeHeights(value);
     markNeedsLayout();
   }
 }
